@@ -36,7 +36,7 @@ public class Updater implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("[ - Ramus' ASM Updater - ]");
+		System.out.println("[ - Ramus' and Vulcan's ASM Updater - ]");
 		System.out.println();
 		final ClientLoader loader = new ClientLoader();
 		classes.putAll(loader.getClasses());
