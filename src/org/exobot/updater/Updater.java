@@ -51,20 +51,18 @@ public class Updater implements Runnable {
 		System.out.println("Executing containers.");
 		System.out.println();
 		final long startTime = System.currentTimeMillis();
-		ExoMap<String, ClassNode> classes = new ExoMap<String, ClassNode>(this.classes);
-		synchronized (this) {
-			for (final HookContainer hc : containers) {
-				for (final Map.Entry<String, ClassNode> entry : classes.entrySet()) {
-					final String name = entry.getKey();
-					final ClassNode cn = entry.getValue();
-					if (!hc.validate(name, cn)) {
-						continue;
-					}
-					for (final Task task : hc.getTasks()) {
-						task.run(name, cn);
-					}
-					classes = new ExoMap<String, ClassNode>(this.classes);
+		Map<String, ClassNode> classes = new LinkedHashMap<String, ClassNode>(this.classes);
+		for (final HookContainer hc : containers) {
+			for (final Map.Entry<String, ClassNode> entry : classes.entrySet()) {
+				final String name = entry.getKey();
+				final ClassNode cn = entry.getValue();
+				if (!hc.validate(name, cn)) {
+					continue;
 				}
+				for (final Task task : hc.getTasks()) {
+					task.run(name, cn);
+				}
+				classes = new ExoMap<String, ClassNode>(this.classes);
 			}
 		}
 		final double finishTime = (System.currentTimeMillis() - startTime) / 1000.0;
@@ -188,6 +186,7 @@ public class Updater implements Runnable {
 		containers.add(new DataContainer());
 		containers.add(new AnimableNodeContainer());
 		containers.add(new ClientContainer());
+		containers.add(new InteractablePlaneContainer());
 		containers.add(new ModelContainer());
 		containers.add(new NodeContainer());
 		containers.add(new NodeSubContainer());

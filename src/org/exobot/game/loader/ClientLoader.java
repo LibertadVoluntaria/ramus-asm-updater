@@ -67,6 +67,7 @@ public class ClientLoader {
 			final File gamepack = new File("gamepack.jar");
 			if (!gamepack.exists()) {
 				System.out.println("Unable to load local gamepack.");
+				System.out.println();
 				return;
 			}
 			System.out.println("Successfully loaded local gamepack.");
