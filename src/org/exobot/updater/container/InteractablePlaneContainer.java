@@ -13,6 +13,16 @@ import org.objectweb.asm.tree.FieldNode;
 public class InteractablePlaneContainer extends HookContainer implements Task {
 
 	@Override
+	public int getInterfaces() {
+		return 1;
+	}
+
+	@Override
+	public int getMethods() {
+		return 1;
+	}
+
+	@Override
 	public void run(final String name, final ClassNode cn) {
 		Updater.getInstance().getClasses().set("InteractablePlane", cn);
 		addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "InteractablePlane;"));
@@ -24,16 +34,6 @@ public class InteractablePlaneContainer extends HookContainer implements Task {
 				addProcessor(new AddMethodProcessor(this, "getInteractablePlane", fn.desc, cn.name, fn.name, fn.desc, false));
 			}
 		}
-	}
-
-	@Override
-	public int getInterfaces() {
-		return 1;
-	}
-
-	@Override
-	public int getMethods() {
-		return 1;
 	}
 
 	@Override
