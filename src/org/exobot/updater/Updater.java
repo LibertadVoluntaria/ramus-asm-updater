@@ -188,6 +188,7 @@ public class Updater implements Runnable {
 		containers.add(new ClientContainer());
 		containers.add(new InteractableLocationContainer());
 		containers.add(new InteractableDataContainer());
+		containers.add(new InteractableManagerContainer());
 		containers.add(new InteractablePlaneContainer());
 		containers.add(new ModelContainer());
 		containers.add(new NodeContainer());

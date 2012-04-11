@@ -31,7 +31,7 @@ public class InteractableDataContainer extends HookContainer implements Task {
 		addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "InteractableData;"));
 		for (final FieldNode fn : cn.fields) {
 			if (fn.desc.equals("L" + Updater.getInstance().getClasses().get("InteractableLocation").name + ";")) {
-				addProcessor(new AddMethodProcessor(this, "getLocation", fn.desc, cn.name, fn.name, fn.desc, false));
+				addProcessor(new AddMethodProcessor(this, "getLocation", "L" + ACCESSOR_DESC + "InteractableLocation;", cn.name, fn.name, fn.desc, false));
 			}
 		}
 	}
