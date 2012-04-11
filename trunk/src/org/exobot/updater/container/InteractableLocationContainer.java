@@ -15,6 +15,17 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class InteractableLocationContainer extends HookContainer implements Task {
 
+
+	@Override
+	public int getInterfaces() {
+		return 1;
+	}
+
+	@Override
+	public int getMethods() {
+		return 2;
+	}
+
 	@Override
 	public void run(final String name, final ClassNode cn) {
 		Updater.getInstance().getClasses().set("InteractableLocation", cn);
@@ -47,16 +58,6 @@ public class InteractableLocationContainer extends HookContainer implements Task
 				addProcessor(new AddMethodProcessor(this, "getY", "F", cn.name, fn.name, "F", false));
 			}
 		}
-	}
-
-	@Override
-	public int getInterfaces() {
-		return 1;
-	}
-
-	@Override
-	public int getMethods() {
-		return 2;
 	}
 
 	@Override

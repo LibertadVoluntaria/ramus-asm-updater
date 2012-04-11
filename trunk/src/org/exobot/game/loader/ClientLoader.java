@@ -21,7 +21,7 @@ import org.objectweb.asm.tree.ClassNode;
  */
 public class ClientLoader {
 
-	public static boolean LOAD_LOCAL = true;
+	public static boolean LOAD_LOCAL = false;
 
 	private final ExoMap<String, ClassNode> classes = new ExoMap<String, ClassNode>();
 	private final GameEnvironment game;
@@ -127,6 +127,7 @@ public class ClientLoader {
 				jos.close();
 				fos.close();
 			} catch (final Exception e) {
+				e.printStackTrace();
 			}
 		}
 		System.out.println();
