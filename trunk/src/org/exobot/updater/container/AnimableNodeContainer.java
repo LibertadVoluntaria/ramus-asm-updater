@@ -28,7 +28,7 @@ public class AnimableNodeContainer extends HookContainer implements Task {
 		Updater.getInstance().getClasses().set("AnimableNode", cn);
 		addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "AnimableNode;"));
 		for (final FieldNode fn : cn.fields) {
-			if ((fn.access & Opcodes.ACC_STATIC) != 0) {
+			if ((fn.access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
 				continue;
 			}
 			if (fn.desc.equals("L" + cn.name + ";")) {
