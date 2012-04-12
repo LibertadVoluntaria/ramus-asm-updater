@@ -2,13 +2,16 @@ package org.exobot.updater;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 import org.exobot.game.loader.ClientLoader;
-import org.exobot.updater.container.*;
+import org.exobot.updater.container.HookContainer;
+import org.exobot.updater.container.Task;
 import org.exobot.updater.processor.AddMethodProcessor;
 import org.exobot.updater.processor.Processor;
 import org.exobot.util.ExoMap;
 import org.exobot.util.RIS;
+import org.exobot.util.io.Package;
 import org.exobot.util.io.StreamWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -50,8 +53,9 @@ public class Updater implements Runnable {
 		System.out.println();
 		System.out.println("Executing containers.");
 		System.out.println();
-		final long startTime = System.currentTimeMillis();
+		HookContainer.sort(containers);
 		Map<String, ClassNode> classes = new LinkedHashMap<String, ClassNode>(this.classes);
+		final long startTime = System.currentTimeMillis();
 		for (final HookContainer hc : containers) {
 			for (final Map.Entry<String, ClassNode> entry : classes.entrySet()) {
 				final String name = entry.getKey();
@@ -183,20 +187,21 @@ public class Updater implements Runnable {
 
 	private void loadContainers() {
 		System.out.println("Loading containers.");
-		containers.add(new DataContainer());
-		containers.add(new AnimableNodeContainer());
-		containers.add(new ClientContainer());
-		containers.add(new InteractableLocationContainer());
-		containers.add(new InteractableDataContainer());
-		containers.add(new InteractableManagerContainer());
-		containers.add(new InteractablePlaneContainer());
-		containers.add(new ModelContainer());
-		containers.add(new NodeContainer());
-		containers.add(new NodeSubContainer());
-		containers.add(new NpcNodeContainer());
-		containers.add(new RenderContainer());
-		containers.add(new TileDataContainer());
-		System.out.println("Successfully loaded " + containers.size() + " containers.");
+		try {
+			final List<Class<?>> classes = Package.getClasses("org.exobot.updater.container");
+			for (final Class<?> clazz : classes) {
+				try {
+					final Object inst = clazz.newInstance();
+					if (inst instanceof HookContainer) {
+						containers.add((HookContainer) inst);
+					}
+				} catch (final Exception e) {
+				}
+			}
+			System.out.println("Successfully loaded " + containers.size() + " containers.");
+		} catch (final IOException e) {
+			System.out.println("Unable to load containers.");
+		}
 		System.out.println();
 	}
 }

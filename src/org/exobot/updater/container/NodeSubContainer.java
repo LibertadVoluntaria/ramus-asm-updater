@@ -16,6 +16,11 @@ import org.objectweb.asm.tree.MethodNode;
 public class NodeSubContainer extends HookContainer implements Task {
 
 	@Override
+	public Class<?>[] getDependencies() {
+		return new Class<?>[]{NodeContainer.class};
+	}
+
+	@Override
 	public int getInterfaces() {
 		return 1;
 	}

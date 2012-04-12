@@ -49,6 +49,23 @@ public abstract class HookContainer implements Condition {
 		processors.add(p);
 	}
 
+	private static boolean canRun(final List<HookContainer> containers, final HookContainer container) {
+		final Class<?>[] dependencies = container.getDependencies();
+		int found = 0;
+		for (final HookContainer hc : containers) {
+			for (final Class<?> dependency : dependencies) {
+				if (hc.getClass().equals(dependency)) {
+					found++;
+				}
+			}
+		}
+		return found == dependencies.length;
+	}
+
+	public Class<?>[] getDependencies() {
+		return new Class<?>[0];
+	}
+
 	public final String getName() {
 		final String name = getClass().getSimpleName();
 		return name.substring(0, name.length() - 9);
@@ -101,6 +118,20 @@ public abstract class HookContainer implements Condition {
 
 	public final void setTasks(final Task[] tasks) {
 		this.tasks = tasks;
+	}
+
+	public static void sort(final List<HookContainer> containers) {
+		final List<HookContainer> sorted = new LinkedList<HookContainer>();
+		while (!containers.isEmpty()) {
+			for (int i = 0; i < containers.size(); i++) {
+				final HookContainer container = containers.get(i);
+				if (canRun(sorted, container)) {
+					sorted.add(container);
+					containers.remove(container);
+				}
+			}
+		}
+		containers.addAll(sorted);
 	}
 
 	@Override

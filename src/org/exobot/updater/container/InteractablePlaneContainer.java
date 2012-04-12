@@ -13,6 +13,11 @@ import org.objectweb.asm.tree.FieldNode;
 public class InteractablePlaneContainer extends HookContainer implements Task {
 
 	@Override
+	public Class<?>[] getDependencies() {
+		return new Class<?>[]{DataContainer.class};
+	}
+
+	@Override
 	public int getInterfaces() {
 		return 1;
 	}

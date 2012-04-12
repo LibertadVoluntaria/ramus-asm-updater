@@ -15,7 +15,6 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class InteractableLocationContainer extends HookContainer implements Task {
 
-
 	@Override
 	public int getInterfaces() {
 		return 1;
