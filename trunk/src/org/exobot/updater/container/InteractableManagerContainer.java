@@ -14,6 +14,11 @@ import org.objectweb.asm.tree.*;
 public class InteractableManagerContainer extends HookContainer implements Task {
 
 	@Override
+	public Class<?>[] getDependencies() {
+		return new Class<?>[]{InteractableDataContainer.class};
+	}
+
+	@Override
 	public int getInterfaces() {
 		return 1;
 	}
