@@ -48,6 +48,7 @@ public class NpcNodeContainer extends HookContainer implements Task {
 			return false;
 		}
 		final ClassNode client = Updater.getInstance().getClasses().get("client");
+		int usage = 0;
 		for (final MethodNode mn : client.methods) {
 			final RIS ris = new RIS(mn);
 			FieldInsnNode fin;
@@ -55,9 +56,9 @@ public class NpcNodeContainer extends HookContainer implements Task {
 				if (!fin.desc.equals(fn.desc) || !fin.name.equals(fn.name) || !fin.owner.equals(cn.name)) {
 					continue;
 				}
-				return true;
+				usage++;
 			}
 		}
-		return false;
+		return usage > 3;
 	}
 }
