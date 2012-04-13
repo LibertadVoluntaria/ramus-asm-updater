@@ -4,7 +4,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.MethodNode;
 
 /**
  * @author Ramus
@@ -38,7 +40,6 @@ public class RIS {
 
 	public RIS(final MethodNode m) {
 		iList = m.instructions;
-		final AbstractInsnNode[] nodes = iList.toArray();
 	}
 
 	public AbstractInsnNode current() {
@@ -76,17 +77,6 @@ public class RIS {
 		return null;
 	}
 
-	public <T> T next(final Class<T> insn, final int opcode) {
-		for (++index; index < iList.size(); ++index) {
-			final AbstractInsnNode cur = current();
-			if (cur == null || !insn.isAssignableFrom(cur.getClass()) || cur.getOpcode() != opcode) {
-				continue;
-			}
-			return insn.cast(cur);
-		}
-		return null;
-	}
-
 	public AbstractInsnNode next(final int opcode) {
 		for (++index; index < iList.size(); ++index) {
 			final AbstractInsnNode cur = current();
@@ -98,38 +88,13 @@ public class RIS {
 		return null;
 	}
 
-	public FieldInsnNode nextFieldInsnNode(final int opcode, final String desc) {
+	public <T> T next(final Class<T> insn, final int opcode) {
 		for (++index; index < iList.size(); ++index) {
 			final AbstractInsnNode cur = current();
-			if (cur == null || !(cur instanceof FieldInsnNode) || cur.getOpcode() != opcode) {
+			if (cur == null || !insn.isAssignableFrom(cur.getClass()) || cur.getOpcode() != opcode) {
 				continue;
 			}
-			final FieldInsnNode fin = (FieldInsnNode) cur;
-			if (desc == null || desc.isEmpty()) {
-				return fin;
-			}
-			if (fin.desc.equals(desc)) {
-				return fin;
-			}
-		}
-		return null;
-	}
-
-	public MethodInsnNode nextMethodInsn(final int opcode, final String... methodNames) {
-		for (++index; index < iList.size(); ++index) {
-			final AbstractInsnNode cur = current();
-			if (cur == null || !(cur instanceof MethodInsnNode) || cur.getOpcode() != opcode) {
-				continue;
-			}
-			final MethodInsnNode min = (MethodInsnNode) cur;
-			if (methodNames.length == 0) {
-				return min;
-			}
-			for (final String methodName : methodNames) {
-				if (min.name.equals(methodName)) {
-					return min;
-				}
-			}
+			return insn.cast(cur);
 		}
 		return null;
 	}
@@ -147,8 +112,7 @@ public class RIS {
 			for (final int code : codes) {
 				if (code != ain.getOpcode()) {
 					continue;
-				}
-				if (patternIdx < parts.length - 1) {
+				} else if (patternIdx < parts.length - 1) {
 					patternIdx++;
 				} else {
 					final AbstractInsnNode[] nodes = new AbstractInsnNode[parts.length];
@@ -199,42 +163,6 @@ public class RIS {
 				continue;
 			}
 			return cur;
-		}
-		return null;
-	}
-
-	public FieldInsnNode previousFieldInsnNode(final int opcode, final String desc) {
-		for (--index; index < iList.size(); --index) {
-			final AbstractInsnNode cur = current();
-			if (cur == null || !(cur instanceof FieldInsnNode) || cur.getOpcode() != opcode) {
-				continue;
-			}
-			final FieldInsnNode fin = (FieldInsnNode) cur;
-			if (desc == null || desc.isEmpty()) {
-				return fin;
-			}
-			if (fin.desc.equals(desc)) {
-				return fin;
-			}
-		}
-		return null;
-	}
-
-	public MethodInsnNode previousMethodInsn(final int opcode, final String... methodNames) {
-		for (--index; index > 0; --index) {
-			final AbstractInsnNode cur = current();
-			if (cur == null || !(cur instanceof MethodInsnNode) || cur.getOpcode() != opcode) {
-				continue;
-			}
-			final MethodInsnNode min = (MethodInsnNode) cur;
-			if (methodNames.length == 0) {
-				return min;
-			}
-			for (final String methodName : methodNames) {
-				if (min.name.equals(methodName)) {
-					return min;
-				}
-			}
 		}
 		return null;
 	}
