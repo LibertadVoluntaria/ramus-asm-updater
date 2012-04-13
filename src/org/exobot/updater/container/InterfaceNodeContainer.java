@@ -74,7 +74,9 @@ public class InterfaceNodeContainer extends HookContainer implements Task {
 			if (!cc.desc.equals(cn.name) || !gf.name.equals(dataField.name) || !gf.desc.equals(dataField.desc) || !gf.owner.equals(cn.name)) {
 				continue;
 			}
-			return true;
+			if (cc.getPrevious().getOpcode() == Opcodes.INVOKESTATIC) {
+				return true;
+			}
 		}
 		return false;
 	}
