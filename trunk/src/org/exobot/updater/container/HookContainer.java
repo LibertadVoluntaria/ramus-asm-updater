@@ -4,7 +4,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import org.exobot.updater.Condition;
+import org.exobot.updater.Task;
+import org.exobot.updater.processor.AddInterfaceProcessor;
 import org.exobot.updater.processor.Processor;
+import org.exobot.updater.processor.SetSuperProcessor;
 import org.objectweb.asm.tree.ClassNode;
 
 /**
@@ -12,7 +16,7 @@ import org.objectweb.asm.tree.ClassNode;
  */
 public abstract class HookContainer implements Condition {
 
-	public static final String ACCESSOR_DESC = "org/exobot/bot/accessors/";
+	public static final String ACCESSOR_DESC = "org/exobot/game/bot/client/";
 
 	private final List<Processor> processors = new LinkedList<Processor>();
 	private final Condition policy;
@@ -75,11 +79,19 @@ public abstract class HookContainer implements Condition {
 		return tasks;
 	}
 
+	public int getGetters() {
+		return 0;
+	}
+
 	public int getInterfaces() {
 		return 0;
 	}
 
-	public int getMethods() {
+	public int getSignatures() {
+		return 0;
+	}
+
+	public int getSupers() {
 		return 0;
 	}
 
@@ -88,7 +100,10 @@ public abstract class HookContainer implements Condition {
 
 			@Override
 			public int compare(final Processor p, final Processor q) {
-				return Integer.compare(q.getId(), p.getId());
+				if (p instanceof AddInterfaceProcessor || p instanceof SetSuperProcessor) {
+					return -1;
+				}
+				return 1;
 			}
 		});
 		return processors;

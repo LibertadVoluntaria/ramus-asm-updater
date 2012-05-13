@@ -1,8 +1,9 @@
 package org.exobot.updater.container;
 
+import org.exobot.updater.Task;
 import org.exobot.updater.Updater;
+import org.exobot.updater.processor.AddGetterProcessor;
 import org.exobot.updater.processor.AddInterfaceProcessor;
-import org.exobot.updater.processor.AddMethodProcessor;
 import org.exobot.util.RIS;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -16,13 +17,13 @@ import org.objectweb.asm.tree.MethodNode;
 public class NodeContainer extends HookContainer implements Task {
 
 	@Override
-	public int getInterfaces() {
-		return 1;
+	public int getGetters() {
+		return 3;
 	}
 
 	@Override
-	public int getMethods() {
-		return 3;
+	public int getInterfaces() {
+		return 1;
 	}
 
 	@Override
@@ -35,7 +36,7 @@ public class NodeContainer extends HookContainer implements Task {
 				continue;
 			}
 			final FieldInsnNode fin = new RIS(mn).next(FieldInsnNode.class, Opcodes.GETFIELD);
-			addProcessor(new AddMethodProcessor(this, "getNext", "L" + ACCESSOR_DESC + "Node;", cn.name, getNext = fin.name, fin.desc, false));
+			addProcessor(new AddGetterProcessor(this, "getNext", "L" + ACCESSOR_DESC + "Node;", cn.name, getNext = fin.name, fin.desc, false));
 			break;
 		}
 		if (getNext == null) {
@@ -43,9 +44,9 @@ public class NodeContainer extends HookContainer implements Task {
 		}
 		for (final FieldNode fn : cn.fields) {
 			if (fn.desc.equals("J")) {
-				addProcessor(new AddMethodProcessor(this, "getId", "J", cn.name, fn.name, "J", false));
-			} else if (!fn.name.equals(getNext)) {
-				addProcessor(new AddMethodProcessor(this, "getPrevious", "L" + ACCESSOR_DESC + "Node;", cn.name, fn.name, fn.desc, false));
+				addProcessor(new AddGetterProcessor(this, "getId", "J", cn.name, fn.name, "J", false));
+			} else if (!fn.name.equals(getNext) && fn.desc.equals("L" + cn.name + ";")) {
+				addProcessor(new AddGetterProcessor(this, "getPrevious", "L" + ACCESSOR_DESC + "Node;", cn.name, fn.name, fn.desc, false));
 			}
 		}
 	}
@@ -59,8 +60,8 @@ public class NodeContainer extends HookContainer implements Task {
 		int selfInst = 0;
 		int longs = 0;
 		for (final FieldNode fn : cn.fields) {
-			if ((fn.access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
-				break;
+			if ((fn.access & Opcodes.ACC_STATIC) != 0) {
+				continue;
 			}
 			if (fn.desc.equals("L" + cn.name + ";")) {
 				selfInst++;

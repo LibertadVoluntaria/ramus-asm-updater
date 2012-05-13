@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
-import org.exobot.game.Game;
 import org.exobot.game.GameEnvironment;
+import org.exobot.game.GameScene;
 import org.exobot.util.ExoMap;
 import org.exobot.util.io.Internet;
 import org.objectweb.asm.ClassReader;
@@ -21,13 +21,13 @@ import org.objectweb.asm.tree.ClassNode;
  */
 public class ClientLoader {
 
-	public static boolean LOAD_LOCAL = false;
+	public static boolean LOAD_LOCAL = true;
 
-	private final ExoMap<String, ClassNode> classes = new ExoMap<String, ClassNode>();
+	private final Map<String, ClassNode> classes = new ExoMap<String, ClassNode>();
 	private final GameEnvironment game;
 
 	public ClientLoader() {
-		game = new Game();
+		game = new GameScene();
 		load();
 	}
 
@@ -43,13 +43,14 @@ public class ClientLoader {
 		return null;
 	}
 
-	public ExoMap<String, ClassNode> getClasses() {
+	public Map<String, ClassNode> getClasses() {
 		return classes;
 	}
 
 	private File getGamepack() {
 		System.out.println("Downloading gamepack.");
 		try {
+			game.load();
 			final String directGame = game.getDirectGame();
 			final File file = File.createTempFile("gamepack", ".jar");
 			Internet.downloadTo(directGame.substring(0, directGame.indexOf(".com") + 5) + game.getArchive(), file);
