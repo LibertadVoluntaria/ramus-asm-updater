@@ -1,15 +1,16 @@
 package org.exobot.updater.container;
 
 import java.awt.Canvas;
+import java.util.Iterator;
 import org.exobot.updater.Task;
 import org.exobot.updater.Updater;
 import org.exobot.updater.processor.AddGetterProcessor;
 import org.exobot.updater.processor.AddInterfaceProcessor;
 import org.exobot.util.MultiplierSearch;
+import org.exobot.util.RIS;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.*;
 
 /**
  * @author Ramus
@@ -18,12 +19,12 @@ public class ClientContainer extends HookContainer implements Task {
 
 	@Override
 	public Class<?>[] getDependencies() {
-		return new Class<?>[]{KeyboardContainer.class, MouseContainer.class};
+		return new Class<?>[]{KeyboardContainer.class, MouseContainer.class, RenderDataContainer.class};
 	}
 
 	@Override
 	public int getGetters() {
-		return 4;
+		return 6;
 	}
 
 	@Override
@@ -33,8 +34,30 @@ public class ClientContainer extends HookContainer implements Task {
 
 	@Override
 	public void run(final String name, final ClassNode cn) {
+		final String renderData = Updater.getInstance().getClasses().get("RenderData").name;
 		if (cn.name.equals("client")) {
 			addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "Client"));
+			for (final MethodNode mn : cn.methods) {
+				if (!mn.name.equals("<clinit>")) {
+					continue;
+				}
+				final RIS ris = new RIS(mn);
+				final Iterator<AbstractInsnNode[]> iterator = ris.nextPattern("ldc putstatic");
+				if (!iterator.hasNext()) {
+					break;
+				}
+				iterator.next();
+				if (!iterator.hasNext()) {
+					break;
+				}
+				final FieldInsnNode fin = (FieldInsnNode) iterator.next()[1];
+				final int multiplier = new MultiplierSearch(fin.owner, fin.name).getMultiplier();
+				if (multiplier == -1) {
+					continue;
+				}
+				addProcessor(new AddGetterProcessor(this, "getLoginIndex", fin.desc, fin.owner, fin.name, fin.desc, true, multiplier));
+				break;
+			}
 		}
 		final String keyboardSuperDesc = "L" + Updater.getInstance().getClasses().get("Keyboard").superName + ";";
 		final String mouseSuperDesc = "L" + Updater.getInstance().getClasses().get("Mouse").superName + ";";
@@ -42,7 +65,9 @@ public class ClientContainer extends HookContainer implements Task {
 			if ((fn.access & Opcodes.ACC_STATIC) == 0) {
 				continue;
 			}
-			if ((fn.access & Opcodes.ACC_VOLATILE) != 0 && fn.desc.equals("I")) {
+			if (cn.name.equals(renderData)) {
+				addProcessor(new AddGetterProcessor(this, "getRenderData", "L" + ACCESSOR_DESC + "RenderData;", cn.name, fn.name, fn.desc, true));
+			} else if ((fn.access & Opcodes.ACC_VOLATILE) != 0 && fn.desc.equals("I")) {
 				final int multiplier = new MultiplierSearch(cn.name, fn.name).getMultiplier();
 				if (multiplier == -1) {
 					continue;
