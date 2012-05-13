@@ -1,4 +1,4 @@
-package org.exobot.updater.container;
+package org.exobot.updater;
 
 import org.objectweb.asm.tree.ClassNode;
 

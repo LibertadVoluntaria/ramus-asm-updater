@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.*;
 import org.exobot.game.loader.ClientLoader;
 import org.exobot.updater.container.HookContainer;
-import org.exobot.updater.container.Task;
-import org.exobot.updater.processor.AddMethodProcessor;
+import org.exobot.updater.processor.AddGetterProcessor;
 import org.exobot.updater.processor.Processor;
+import org.exobot.updater.processor.SetSignatureProcessor;
 import org.exobot.util.ExoMap;
 import org.exobot.util.RIS;
 import org.exobot.util.io.Package;
@@ -21,7 +21,7 @@ import org.objectweb.asm.tree.MethodNode;
 /**
  * @author Ramus
  */
-public class Updater implements Runnable {
+public class Updater extends Thread implements Runnable {
 
 	private static Updater instance;
 
@@ -31,7 +31,7 @@ public class Updater implements Runnable {
 
 	public static void main(final String[] args) {
 		instance = new Updater();
-		instance.run();
+		instance.start();
 	}
 
 	private final List<HookContainer> containers = new LinkedList<HookContainer>();
@@ -39,7 +39,7 @@ public class Updater implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println("[ - Ramus' and Vulcan's ASM Updater - ]");
+		System.out.println("[ - Ramus' ASM Updater - ]");
 		System.out.println();
 		final ClientLoader loader = new ClientLoader();
 		classes.putAll(loader.getClasses());
@@ -54,14 +54,19 @@ public class Updater implements Runnable {
 		System.out.println("Executing containers.");
 		System.out.println();
 		HookContainer.sort(containers);
-		Map<String, ClassNode> classes = new LinkedHashMap<String, ClassNode>(this.classes);
+		Map<String, ClassNode> classes = new ExoMap<String, ClassNode>(this.classes);
 		final long startTime = System.currentTimeMillis();
+		outer:
 		for (final HookContainer hc : containers) {
 			for (final Map.Entry<String, ClassNode> entry : classes.entrySet()) {
 				final String name = entry.getKey();
 				final ClassNode cn = entry.getValue();
-				if (!hc.validate(name, cn)) {
-					continue;
+				try {
+					if (!hc.validate(name, cn)) {
+						continue;
+					}
+				} catch (final NullPointerException e) {
+					continue outer;
 				}
 				for (final Task task : hc.getTasks()) {
 					task.run(name, cn);
@@ -69,23 +74,28 @@ public class Updater implements Runnable {
 				classes = new ExoMap<String, ClassNode>(this.classes);
 			}
 		}
+		this.classes.clear();
+		this.classes.putAll(classes);
 		final double finishTime = (System.currentTimeMillis() - startTime) / 1000.0;
 		int totalGetters = 0;
-		int finalInterfaces = 0;
+		int totalClasses = 0;
+		int totalSigs = 0;
 		for (final HookContainer hc : containers) {
 			if (hc.isHidden()) {
 				continue;
 			}
-			totalGetters += hc.getMethods();
-			finalInterfaces += hc.getInterfaces();
+			totalGetters += hc.getGetters();
+			totalClasses += hc.getInterfaces() + hc.getSupers();
+			totalSigs += hc.getSignatures();
 		}
 		int getters = 0;
-		int interfaces = 0;
+		int clazzes = 0;
+		int sigs = 0;
 		Collections.sort(containers, new Comparator<HookContainer>() {
 
 			@Override
 			public int compare(final HookContainer hc1, final HookContainer hc2) {
-				return hc1.getClass().getSimpleName().compareTo(hc2.getClass().getSimpleName());
+				return hc1.getName().compareTo(hc2.getName());
 			}
 		});
 		for (final HookContainer hc : containers) {
@@ -98,13 +108,16 @@ public class Updater implements Runnable {
 					continue;
 				}
 				switch (p.getId()) {
-					case Processor.Id.ADD_METHOD:
 					case Processor.Id.GET_STATIC:
 					case Processor.Id.GET_FIELD:
 						getters++;
 						break;
+					case Processor.Id.SET_SUPER:
 					case Processor.Id.ADD_INTERFACE:
-						interfaces++;
+						clazzes++;
+						break;
+					case Processor.Id.SET_SIGNATURE:
+						sigs++;
 						break;
 				}
 				System.out.println(p.getOutput());
@@ -113,8 +126,9 @@ public class Updater implements Runnable {
 		}
 		System.out.println("Successfully executed containers in " + finishTime + " seconds.");
 		System.out.println();
-		System.out.println("Successfully identified " + interfaces + "/" + finalInterfaces + " classes.");
+		System.out.println("Successfully identified " + clazzes + "/" + totalClasses + " classes.");
 		System.out.println("Successfully identified " + getters + "/" + totalGetters + " fields.");
+		System.out.println("Successfully identified " + sigs + "/" + totalSigs + " methods.");
 		System.out.println();
 	}
 
@@ -128,7 +142,17 @@ public class Updater implements Runnable {
 				if (hc.isHidden()) {
 					continue;
 				}
-				numProcessors += hc.getProcessors().size();
+				boolean getters = true;
+				for (final Processor p : hc.getProcessors()) {
+					if (p instanceof AddGetterProcessor) {
+						if (getters) {
+							numProcessors++;
+							getters = false;
+						}
+						continue;
+					}
+					numProcessors++;
+				}
 				processors.addAll(hc.getProcessors());
 			}
 			Collections.sort(processors, new Comparator<Processor>() {
@@ -143,14 +167,22 @@ public class Updater implements Runnable {
 			stream.writeShort(getRSBuild());
 			stream.writeShort(numProcessors);
 			stream.write(0xA);
-			HookContainer currContainer = null;
+			HookContainer getterContainer = null;
+			HookContainer sigContainer = null;
 			for (final Processor p : processors) {
-				if (p instanceof AddMethodProcessor) {
-					if (!p.getContainer().equals(currContainer) || currContainer == null) {
-						currContainer = p.getContainer();
-						stream.write(Processor.Id.GET_FIELD);
-						stream.writeString(classes.containsKey(currContainer.getName()) ? classes.get(currContainer.getName()).name : currContainer.getName().toLowerCase());
-						stream.writeShort(currContainer.getSize(AddMethodProcessor.class));
+				if (p instanceof AddGetterProcessor) {
+					if (!p.getContainer().equals(getterContainer)) {
+						getterContainer = p.getContainer();
+						stream.write(p.getId());
+						stream.writeString(classes.containsKey(getterContainer.getName()) ? classes.get(getterContainer.getName()).name : getterContainer.getName().toLowerCase());
+						stream.writeShort(getterContainer.getSize(AddGetterProcessor.class));
+					}
+				} else if (p instanceof SetSignatureProcessor) {
+					if (!p.getContainer().equals(sigContainer)) {
+						sigContainer = p.getContainer();
+						stream.write(p.getId());
+						stream.writeString(classes.containsKey(sigContainer.getName()) ? classes.get(sigContainer.getName()).name : sigContainer.getName().toLowerCase());
+						stream.writeShort(sigContainer.getSize(SetSignatureProcessor.class));
 					}
 				}
 				p.process(stream);
@@ -160,6 +192,7 @@ public class Updater implements Runnable {
 			System.out.print("Successfully generated modscript.");
 		} catch (final Exception e) {
 			System.out.print("Unable generate modscript.");
+			e.printStackTrace();
 		}
 	}
 
@@ -177,8 +210,9 @@ public class Updater implements Runnable {
 			IntInsnNode sipush;
 			ris.setPosition(ris.getInsnList().size() - 1);
 			while ((sipush = ris.previous(IntInsnNode.class, Opcodes.SIPUSH)) != null) {
-				if (sipush.operand > 256) {
-					return sipush.operand;
+				final int value = sipush.operand;
+				if (value > 250 && value < 5000) {
+					return value;
 				}
 			}
 		}
@@ -195,7 +229,7 @@ public class Updater implements Runnable {
 					if (inst instanceof HookContainer) {
 						containers.add((HookContainer) inst);
 					}
-				} catch (final Exception e) {
+				} catch (final Exception ignored) {
 				}
 			}
 			System.out.println("Successfully loaded " + containers.size() + " containers.");

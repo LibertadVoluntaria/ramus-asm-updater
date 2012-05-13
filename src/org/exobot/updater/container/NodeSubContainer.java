@@ -1,8 +1,9 @@
 package org.exobot.updater.container;
 
+import org.exobot.updater.Task;
 import org.exobot.updater.Updater;
+import org.exobot.updater.processor.AddGetterProcessor;
 import org.exobot.updater.processor.AddInterfaceProcessor;
-import org.exobot.updater.processor.AddMethodProcessor;
 import org.exobot.util.RIS;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -21,13 +22,13 @@ public class NodeSubContainer extends HookContainer implements Task {
 	}
 
 	@Override
-	public int getInterfaces() {
-		return 1;
+	public int getGetters() {
+		return 2;
 	}
 
 	@Override
-	public int getMethods() {
-		return 2;
+	public int getInterfaces() {
+		return 1;
 	}
 
 	@Override
@@ -39,7 +40,7 @@ public class NodeSubContainer extends HookContainer implements Task {
 			final RIS ris = new RIS(mn);
 			FieldInsnNode fin;
 			if ((fin = ris.next(FieldInsnNode.class, Opcodes.GETFIELD)) != null) {
-				addProcessor(new AddMethodProcessor(this, "getNextSub", "L" + ACCESSOR_DESC + "NodeSub;", cn.name, getNext = fin.name, fin.desc, false));
+				addProcessor(new AddGetterProcessor(this, "getNextSub", "L" + ACCESSOR_DESC + "NodeSub;", cn.name, getNext = fin.name, fin.desc, false));
 				break;
 			}
 		}
@@ -47,10 +48,10 @@ public class NodeSubContainer extends HookContainer implements Task {
 			return;
 		}
 		for (final FieldNode fn : cn.fields) {
-			if (fn.name.equals(getNext) || !fn.desc.equals("J")) {
+			if (fn.name.equals(getNext) || fn.desc.equals("J")) {
 				continue;
 			}
-			addProcessor(new AddMethodProcessor(this, "getPrevSub", "L" + ACCESSOR_DESC + "NodeSub;", cn.name, fn.name, fn.desc, false));
+			addProcessor(new AddGetterProcessor(this, "getPrevSub", "L" + ACCESSOR_DESC + "NodeSub;", cn.name, fn.name, fn.desc, false));
 		}
 
 	}

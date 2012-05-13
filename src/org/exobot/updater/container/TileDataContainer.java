@@ -1,8 +1,9 @@
 package org.exobot.updater.container;
 
+import org.exobot.updater.Task;
 import org.exobot.updater.Updater;
+import org.exobot.updater.processor.AddGetterProcessor;
 import org.exobot.updater.processor.AddInterfaceProcessor;
-import org.exobot.updater.processor.AddMethodProcessor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
@@ -13,12 +14,12 @@ import org.objectweb.asm.tree.FieldNode;
 public class TileDataContainer extends HookContainer implements Task {
 
 	@Override
-	public int getInterfaces() {
+	public int getGetters() {
 		return 1;
 	}
 
 	@Override
-	public int getMethods() {
+	public int getInterfaces() {
 		return 1;
 	}
 
@@ -31,7 +32,7 @@ public class TileDataContainer extends HookContainer implements Task {
 				continue;
 			}
 			if (fn.desc.equals("[[I")) {
-				addProcessor(new AddMethodProcessor(this, "getHeights", fn.desc, cn.name, fn.name, fn.desc, false));
+				addProcessor(new AddGetterProcessor(this, "getHeights", fn.desc, cn.name, fn.name, fn.desc, false));
 			}
 		}
 	}

@@ -11,7 +11,7 @@ import org.objectweb.asm.Type;
  *
  * @author Ramus
  */
-public class AddMethodProcessor extends Processor {
+public class AddGetterProcessor extends Processor {
 
 	private final HookContainer cc;
 	private final String name;
@@ -23,15 +23,15 @@ public class AddMethodProcessor extends Processor {
 	private final boolean isStatic;
 	private final int multiplier;
 
-	public AddMethodProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic) {
+	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic) {
 		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, -1, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 	}
 
-	public AddMethodProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier) {
+	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier) {
 		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 	}
 
-	public AddMethodProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier, final int access) {
+	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier, final int access) {
 		this.cc = cc;
 		this.name = name;
 		this.parent = parent;
@@ -45,10 +45,10 @@ public class AddMethodProcessor extends Processor {
 
 	@Override
 	public boolean equals(final Object o) {
-		if (!(o instanceof AddMethodProcessor)) {
+		if (!(o instanceof AddGetterProcessor)) {
 			return false;
 		}
-		final AddMethodProcessor p = (AddMethodProcessor) o;
+		final AddGetterProcessor p = (AddGetterProcessor) o;
 		return p.name.equals(name) && p.cc.equals(cc) && p.returnDesc.equals(returnDesc) && p.isStatic == isStatic;
 	}
 
@@ -59,13 +59,13 @@ public class AddMethodProcessor extends Processor {
 
 	@Override
 	public String getOutput() {
-		return "* " + name + "() --> " + (isStatic ? "static " : "") + returnDesc + " " + parent + "." + field +
+		return "@ " + name + "() --> " + (isStatic ? "static " : "") + returnDesc + " " + parent + "." + field +
 				(multiplier != -1 ? " * " + multiplier : "");
 	}
 
 	@Override
 	public int getId() {
-		return Id.ADD_METHOD;
+		return isStatic ? Id.GET_STATIC : Id.GET_FIELD;
 	}
 
 	@Override

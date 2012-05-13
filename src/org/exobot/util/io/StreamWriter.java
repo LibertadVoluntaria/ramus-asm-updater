@@ -1,6 +1,5 @@
 package org.exobot.util.io;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -11,12 +10,15 @@ import java.util.Arrays;
 public class StreamWriter extends OutputStream {
 
 	private static final byte EOL = 0xA;
-	private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 	private byte[] data = new byte[32];
 	private int count = 0;
 
-	public void writeTo(final OutputStream out) throws IOException {
-		out.write(data);
+	private void resize(final int newCapacity) {
+		data = Arrays.copyOf(data, newCapacity);
+	}
+
+	public int size() {
+		return count;
 	}
 
 	public void subSequence(final int start, final int end) {
@@ -28,10 +30,11 @@ public class StreamWriter extends OutputStream {
 		System.arraycopy(data, start, data, 0, len);
 	}
 
-	public void writeShort(final int s) throws IOException {
-		for (int j = 1; j > -1; j--) {
-			write((s >>> (j * 8)) & 0xFF);
-		}
+	@Override
+	public void write(final int b) throws IOException {
+		resize(count + 1);
+		data[count] = (byte) b;
+		count++;
 	}
 
 	public void writeInt(final int i) throws IOException {
@@ -46,29 +49,24 @@ public class StreamWriter extends OutputStream {
 		}
 	}
 
-	public void writeSegment(final byte[] bytes) throws IOException {
-		for (final int b : bytes) {
+	public void writeString(final String s) throws IOException {
+		writeSegment(s.getBytes());
+	}
+
+	public void writeSegment(final byte[] data) throws IOException {
+		for (final int b : data) {
 			write(b);
 		}
 		write(EOL);
 	}
 
-	public void writeString(final String s) throws IOException {
-		writeSegment(s.getBytes());
+	public void writeShort(final int s) throws IOException {
+		for (int j = 1; j > -1; j--) {
+			write((s >>> (j * 8)) & 0xFF);
+		}
 	}
 
-	@Override
-	public void write(final int b) throws IOException {
-		resize(count + 1);
-		data[count] = (byte) b;
-		count++;
-	}
-
-	private void resize(final int newCapacity) {
-		data = Arrays.copyOf(data, newCapacity);
-	}
-
-	public int size() {
-		return count;
+	public void writeTo(final OutputStream out) throws IOException {
+		out.write(data);
 	}
 }

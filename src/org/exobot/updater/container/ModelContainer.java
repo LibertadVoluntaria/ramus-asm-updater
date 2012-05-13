@@ -1,8 +1,9 @@
 package org.exobot.updater.container;
 
+import org.exobot.updater.Task;
 import org.exobot.updater.Updater;
+import org.exobot.updater.processor.AddGetterProcessor;
 import org.exobot.updater.processor.AddInterfaceProcessor;
-import org.exobot.updater.processor.AddMethodProcessor;
 import org.exobot.util.RIS;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
@@ -12,16 +13,14 @@ import org.objectweb.asm.tree.*;
  */
 public class ModelContainer extends HookContainer implements Task {
 
-	private static final String[] POINTS = {"X", "Y", "Z"};
+	@Override
+	public int getGetters() {
+		return 6;
+	}
 
 	@Override
 	public int getInterfaces() {
 		return 1;
-	}
-
-	@Override
-	public int getMethods() {
-		return 6;
 	}
 
 	@Override
@@ -67,7 +66,7 @@ public class ModelContainer extends HookContainer implements Task {
 					}
 					if (fields != null) {
 						for (int i = 1; i < 4; i++) {
-							addProcessor(new AddMethodProcessor(this, "getIndices" + i, "[S", node.name, fields[i - 1], "[S", false));
+							addProcessor(new AddGetterProcessor(this, "getIndices" + i, "[S", node.name, fields[i - 1], "[S", false));
 						}
 						foundIndices = true;
 					}
@@ -91,7 +90,7 @@ public class ModelContainer extends HookContainer implements Task {
 					if (fin == null) {
 						continue outer;
 					}
-					addProcessor(new AddMethodProcessor(this, "get" + POINTS[i] + "Points", "[I", node.name, fin.name, "[I", false));
+					addProcessor(new AddGetterProcessor(this, "get" + (char) (88 + i) + "Points", "[I", node.name, fin.name, "[I", false));
 				}
 				foundPoints = true;
 			}
@@ -100,7 +99,7 @@ public class ModelContainer extends HookContainer implements Task {
 
 	@Override
 	public boolean validate(final String name, final ClassNode cn) {
-		if ((cn.access & Opcodes.ACC_ABSTRACT) != Opcodes.ACC_ABSTRACT || !cn.superName.equals("java/lang/Object") || cn.interfaces.size() > 1 || cn.fields.size() != 1) {
+		if ((cn.access & Opcodes.ACC_ABSTRACT) != Opcodes.ACC_ABSTRACT || !cn.superName.equals("java/lang/Object") || cn.interfaces.size() > 0 || cn.fields.size() > 2) {
 			return false;
 		}
 		int abstracts = 0;

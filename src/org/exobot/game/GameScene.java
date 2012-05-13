@@ -10,7 +10,7 @@ import org.exobot.util.io.Internet;
 /**
  * @author Ramus
  */
-public class Game implements GameEnvironment {
+public class GameScene implements GameEnvironment {
 
 	private static interface Patterns {
 
@@ -21,27 +21,13 @@ public class Game implements GameEnvironment {
 		public static final Pattern PARAMETER = Pattern.compile("<param name=\"([^\\s]+)\"\\s+value=\"([^>]*)\">");
 	}
 
-	public static final String HOME = "http://runescape.com/";
-
-	private final Map<String, String> parameters;
-	private final String game;
-	private final String directGame;
-	private final String archive;
-	private final String code;
-	private final int world;
-
-	public Game() {
-		try {
-			game = parseGame();
-			directGame = parseDirectGame();
-			archive = parseArchive();
-			parameters = parseParameters();
-			code = parseCode();
-			world = Integer.parseInt(directGame.substring(directGame.indexOf("world") + 5, directGame.indexOf(".runescape")));
-		} catch (final IOException e) {
-			throw new RuntimeException("Unable to initialize game environment.");
-		}
-	}
+	public static final String HOME = "http://www.runescape.com/title.ws";
+	private final Map<String, String> parameters = new LinkedHashMap<String, String>();
+	private String game = null;
+	private String directGame = null;
+	private String archive = null;
+	private String code = null;
+	private int world = -1;
 
 	@Override
 	public String getArchive() {
@@ -78,6 +64,21 @@ public class Game implements GameEnvironment {
 		return world;
 	}
 
+	@Override
+	public void load() {
+		try {
+			game = parseGame();
+			directGame = parseDirectGame();
+			archive = parseArchive();
+			parameters.clear();
+			parameters.putAll(parseParameters());
+			code = parseCode();
+			world = Integer.parseInt(directGame.substring(directGame.indexOf("world") + 5, directGame.indexOf(".runescape")));
+		} catch (final IOException e) {
+			throw new RuntimeException("Unable to load game scene.");
+		}
+	}
+
 	private String parseArchive() throws IOException {
 		final Matcher matcher = Patterns.ARCHIVE.matcher(Internet.downloadContent(directGame));
 		if (!matcher.find()) {
@@ -104,7 +105,8 @@ public class Game implements GameEnvironment {
 	}
 
 	private String parseGame() throws IOException {
-		final Matcher matcher = Patterns.GAME.matcher(Internet.downloadContent(HOME));
+		final String content = Internet.downloadContent(HOME);
+		final Matcher matcher = Patterns.GAME.matcher(content);
 		if (!matcher.find()) {
 			return null;
 		}
