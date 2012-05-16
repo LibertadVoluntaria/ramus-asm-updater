@@ -24,7 +24,7 @@ public class ClientContainer extends HookContainer implements Task {
 
 	@Override
 	public int getGetters() {
-		return 6;
+		return 7;
 	}
 
 	@Override
@@ -34,7 +34,6 @@ public class ClientContainer extends HookContainer implements Task {
 
 	@Override
 	public void run(final String name, final ClassNode cn) {
-		final String renderData = Updater.getInstance().getClasses().get("RenderData").name;
 		if (cn.name.equals("client")) {
 			addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "Client"));
 			for (final MethodNode mn : cn.methods) {
@@ -43,11 +42,7 @@ public class ClientContainer extends HookContainer implements Task {
 				}
 				final RIS ris = new RIS(mn);
 				final Iterator<AbstractInsnNode[]> iterator = ris.nextPattern("ldc putstatic");
-				if (!iterator.hasNext()) {
-					break;
-				}
-				iterator.next();
-				if (!iterator.hasNext()) {
+				if (!iterator.hasNext() || iterator.next() == null || !iterator.hasNext()) {
 					break;
 				}
 				final FieldInsnNode fin = (FieldInsnNode) iterator.next()[1];
@@ -61,6 +56,9 @@ public class ClientContainer extends HookContainer implements Task {
 		}
 		final String keyboardSuperDesc = "L" + Updater.getInstance().getClasses().get("Keyboard").superName + ";";
 		final String mouseSuperDesc = "L" + Updater.getInstance().getClasses().get("Mouse").superName + ";";
+		final String renderData = Updater.getInstance().getClasses().get("RenderData").name;
+		final String renderDesc = "L" + Updater.getInstance().getClasses().get("Render").name + ";";
+		outer:
 		for (final FieldNode fn : cn.fields) {
 			if ((fn.access & Opcodes.ACC_STATIC) == 0) {
 				continue;
@@ -79,6 +77,21 @@ public class ClientContainer extends HookContainer implements Task {
 				addProcessor(new AddGetterProcessor(this, "getKeyboard", "L" + ACCESSOR_DESC + "input/Keyboard;", cn.name, fn.name, fn.desc, true));
 			} else if (fn.desc.equals(mouseSuperDesc)) {
 				addProcessor(new AddGetterProcessor(this, "getMouse", "L" + ACCESSOR_DESC + "input/Mouse;", cn.name, fn.name, fn.desc, true));
+			} else if (fn.desc.equals(renderDesc)) {
+				final ClassNode client = Updater.getInstance().getClasses().get("client");
+				for (final MethodNode mn : client.methods) {
+					if ((mn.access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) != 0) {
+						continue;
+					}
+					final RIS ris = new RIS(mn);
+					FieldInsnNode fin;
+					while ((fin = ris.next(FieldInsnNode.class, Opcodes.GETSTATIC)) != null) {
+						if (fin.owner.equals(cn.name) && fin.name.equals(fn.name) && fin.desc.equals(fn.desc)) {
+							addProcessor(new AddGetterProcessor(this, "getRender", "L" + ACCESSOR_DESC + "Render;", cn.name, fn.name, fn.desc, true));
+							continue outer;
+						}
+					}
+				}
 			}
 		}
 	}

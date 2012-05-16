@@ -38,8 +38,8 @@ public class RIS {
 	private final InsnList iList;
 	private int index = 0;
 
-	public RIS(final MethodNode m) {
-		iList = m.instructions;
+	public RIS(final MethodNode mn) {
+		iList = mn.instructions;
 	}
 
 	public AbstractInsnNode current() {

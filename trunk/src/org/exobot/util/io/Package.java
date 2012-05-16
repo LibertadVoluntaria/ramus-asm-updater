@@ -29,7 +29,7 @@ public class Package {
 				if (fileName.endsWith(".class") || fileName.endsWith(".java")) {
 					try {
 						classes.add(Class.forName(packageName + "." + fileName.replace(".java", "").replace(".class", "")));
-					} catch (final ClassNotFoundException e) {
+					} catch (final ClassNotFoundException ignored) {
 					}
 				}
 			}
