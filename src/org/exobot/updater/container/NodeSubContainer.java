@@ -48,7 +48,7 @@ public class NodeSubContainer extends HookContainer implements Task {
 			return;
 		}
 		for (final FieldNode fn : cn.fields) {
-			if (fn.name.equals(getNext) || fn.desc.equals("J")) {
+			if ((fn.access & Opcodes.ACC_STATIC) != 0 || fn.name.equals(getNext) || !fn.desc.equals("L" + cn.name + ";")) {
 				continue;
 			}
 			addProcessor(new AddGetterProcessor(this, "getPrevSub", "L" + ACCESSOR_DESC + "NodeSub;", cn.name, fn.name, fn.desc, false));

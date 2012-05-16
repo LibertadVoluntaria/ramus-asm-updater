@@ -4,13 +4,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.jar.JarOutputStream;
 import org.exobot.game.GameEnvironment;
 import org.exobot.game.GameScene;
-import org.exobot.util.ExoMap;
 import org.exobot.util.io.Internet;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -23,7 +23,7 @@ public class ClientLoader {
 
 	public static boolean LOAD_LOCAL = true;
 
-	private final Map<String, ClassNode> classes = new ExoMap<String, ClassNode>();
+	private final Map<String, ClassNode> classes = new LinkedHashMap<String, ClassNode>();
 	private final GameEnvironment game;
 
 	public ClientLoader() {

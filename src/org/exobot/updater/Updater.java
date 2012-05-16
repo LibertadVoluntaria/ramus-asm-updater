@@ -56,17 +56,12 @@ public class Updater extends Thread implements Runnable {
 		HookContainer.sort(containers);
 		Map<String, ClassNode> classes = new ExoMap<String, ClassNode>(this.classes);
 		final long startTime = System.currentTimeMillis();
-		outer:
 		for (final HookContainer hc : containers) {
 			for (final Map.Entry<String, ClassNode> entry : classes.entrySet()) {
 				final String name = entry.getKey();
 				final ClassNode cn = entry.getValue();
-				try {
-					if (!hc.validate(name, cn)) {
-						continue;
-					}
-				} catch (final NullPointerException e) {
-					continue outer;
+				if (!hc.validate(name, cn)) {
+					continue;
 				}
 				for (final Task task : hc.getTasks()) {
 					task.run(name, cn);
@@ -211,7 +206,7 @@ public class Updater extends Thread implements Runnable {
 			ris.setPosition(ris.getInsnList().size() - 1);
 			while ((sipush = ris.previous(IntInsnNode.class, Opcodes.SIPUSH)) != null) {
 				final int value = sipush.operand;
-				if (value > 250 && value < 5000) {
+				if (value > 250 && value < 2500) {
 					return value;
 				}
 			}

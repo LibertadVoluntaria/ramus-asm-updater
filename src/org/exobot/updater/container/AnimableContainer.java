@@ -41,11 +41,11 @@ public class AnimableContainer extends HookContainer implements Task {
 			}
 			final RIS ris = new RIS(mn);
 			FieldInsnNode fin;
-			for (int i = 1; i < 5; i++) {
+			for (int i = 0; i < 4; i++) {
 				if ((fin = ris.next(FieldInsnNode.class, Opcodes.GETFIELD)) == null) {
 					continue;
 				}
-				addProcessor(new AddGetterProcessor(this, "get" + (char) (Math.max(0, Math.min(3, i) - 2) + 88) + ((i + 1 & 1) + 1), fin.desc, cn.name, fin.name, fin.desc, false));
+				addProcessor(new AddGetterProcessor(this, "get" + ((i & 1) != 0 ? "Max" : "Min") + (char) (Math.max(0, Math.min(1, i - 1)) + 88), fin.desc, cn.name, fin.name, fin.desc, false));
 			}
 			break;
 		}
