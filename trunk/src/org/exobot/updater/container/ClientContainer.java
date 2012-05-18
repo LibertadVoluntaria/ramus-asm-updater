@@ -50,7 +50,7 @@ public class ClientContainer extends HookContainer implements Task {
 				if (multiplier == -1) {
 					continue;
 				}
-				addProcessor(new AddGetterProcessor(this, "getLoginIndex", fin.desc, fin.owner, fin.name, fin.desc, true, multiplier));
+				addProcessor(new AddGetterProcessor(this, "getLoginIndex", fin.desc, fin.owner, fin.name, fin.desc, !fin.owner.equals("client"), multiplier));
 				break;
 			}
 		}
@@ -64,19 +64,19 @@ public class ClientContainer extends HookContainer implements Task {
 				continue;
 			}
 			if (cn.name.equals(renderData)) {
-				addProcessor(new AddGetterProcessor(this, "getRenderData", "L" + ACCESSOR_DESC + "RenderData;", cn.name, fn.name, fn.desc, true));
+				addProcessor(new AddGetterProcessor(this, "getRenderData", "L" + ACCESSOR_DESC + "RenderData;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
 			} else if ((fn.access & Opcodes.ACC_VOLATILE) != 0 && fn.desc.equals("I")) {
 				final int multiplier = new MultiplierSearch(cn.name, fn.name).getMultiplier();
 				if (multiplier == -1) {
 					continue;
 				}
-				addProcessor(new AddGetterProcessor(this, "getGUIRSInterfaceIndex", fn.desc, cn.name, fn.name, fn.desc, true, multiplier));
+				addProcessor(new AddGetterProcessor(this, "getGUIRSInterfaceIndex", fn.desc, cn.name, fn.name, fn.desc, !cn.name.equals("client"), multiplier));
 			} else if (fn.desc.equals(Type.getDescriptor(Canvas.class))) {
-				addProcessor(new AddGetterProcessor(this, "getCanvas", fn.desc, cn.name, fn.name, fn.desc, true));
+				addProcessor(new AddGetterProcessor(this, "getCanvas", fn.desc, cn.name, fn.name, fn.desc, !cn.name.equals("client")));
 			} else if (fn.desc.equals(keyboardSuperDesc)) {
-				addProcessor(new AddGetterProcessor(this, "getKeyboard", "L" + ACCESSOR_DESC + "input/Keyboard;", cn.name, fn.name, fn.desc, true));
+				addProcessor(new AddGetterProcessor(this, "getKeyboard", "L" + ACCESSOR_DESC + "input/Keyboard;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
 			} else if (fn.desc.equals(mouseSuperDesc)) {
-				addProcessor(new AddGetterProcessor(this, "getMouse", "L" + ACCESSOR_DESC + "input/Mouse;", cn.name, fn.name, fn.desc, true));
+				addProcessor(new AddGetterProcessor(this, "getMouse", "L" + ACCESSOR_DESC + "input/Mouse;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
 			} else if (fn.desc.equals(renderDesc)) {
 				final ClassNode client = Updater.getInstance().getClasses().get("client");
 				for (final MethodNode mn : client.methods) {
@@ -87,7 +87,7 @@ public class ClientContainer extends HookContainer implements Task {
 					FieldInsnNode fin;
 					while ((fin = ris.next(FieldInsnNode.class, Opcodes.GETSTATIC)) != null) {
 						if (fin.owner.equals(cn.name) && fin.name.equals(fn.name) && fin.desc.equals(fn.desc)) {
-							addProcessor(new AddGetterProcessor(this, "getRender", "L" + ACCESSOR_DESC + "Render;", cn.name, fn.name, fn.desc, true));
+							addProcessor(new AddGetterProcessor(this, "getRender", "L" + ACCESSOR_DESC + "Render;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
 							continue outer;
 						}
 					}
