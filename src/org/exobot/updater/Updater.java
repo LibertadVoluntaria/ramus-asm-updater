@@ -154,7 +154,7 @@ public class Updater extends Thread implements Runnable {
 
 				@Override
 				public int compare(final Processor p, final Processor q) {
-					return Integer.compare(p.getId(), q.getId());
+					return Integer.compare(p.getId() == Processor.Id.GET_STATIC ? Processor.Id.GET_FIELD : p.getId(), q.getId() == Processor.Id.GET_STATIC ? Processor.Id.GET_FIELD : q.getId());
 				}
 			});
 			stream.writeInt(0xFADFAD);
