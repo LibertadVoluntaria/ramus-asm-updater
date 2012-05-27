@@ -53,7 +53,6 @@ public class NodeSubContainer extends HookContainer implements Task {
 			}
 			addProcessor(new AddGetterProcessor(this, "getPrevSub", "L" + ACCESSOR_DESC + "NodeSub;", cn.name, fn.name, fn.desc, false));
 		}
-
 	}
 
 	@Override

@@ -1,25 +1,22 @@
 package org.exobot.updater.container;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
 import org.exobot.updater.Condition;
 import org.exobot.updater.Task;
-import org.exobot.updater.Updater;
 import org.exobot.updater.processor.AddInterfaceProcessor;
 import org.exobot.updater.processor.Processor;
 import org.exobot.updater.processor.SetSuperProcessor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.tree.FieldNode;
 
 /**
  * @author Ramus
  */
 public abstract class HookContainer implements Condition {
 
-	public static final String ACCESSOR_DESC = "org/exobot/game/bot/client/";
+	public static final String ACCESSOR_DESC = "org/exobot/game/client/";
 
 	private final List<Processor> processors = new LinkedList<Processor>();
 	private final Condition policy;
@@ -124,46 +121,6 @@ public abstract class HookContainer implements Condition {
 
 	public boolean isHidden() {
 		return hidden;
-	}
-
-	private String refactorDesc(final String desc) {
-		if (desc.length() < 6 && desc.startsWith("L") && desc.endsWith(";")) {
-			return "Ljava/lang/Object;";
-		}
-		return desc;
-	}
-
-	public final String processSignature(final ClassNode cn) {
-		final StringBuilder signature = new StringBuilder();
-		final List<String> temp = new LinkedList<String>();
-		final Map<String, ClassNode> classes = Updater.getInstance().getClasses();
-		temp.add(refactorDesc(cn.superName));
-		for (final String iface : cn.interfaces) {
-			temp.add(refactorDesc(iface));
-		}
-		for (final FieldNode fn : cn.fields) {
-			if ((fn.access & Opcodes.ACC_STATIC) != 0) {
-				continue;
-			}
-			temp.add(refactorDesc(fn.desc));
-		}
-		Collections.sort(temp, new Comparator<String>() {
-
-			@Override
-			public int compare(final String s, final String t) {
-				return s.compareToIgnoreCase(t);
-			}
-		});
-		for (final String s : temp) {
-			signature.append(s);
-		}
-		try {
-			final MessageDigest md = MessageDigest.getInstance("MD5");
-			md.update(signature.toString().getBytes(), 0, signature.length());
-			return new BigInteger(1, md.digest()).toString(16);
-		} catch (final NoSuchAlgorithmException ignored) {
-		}
-		return signature.toString();
 	}
 
 	public final void setHidden(final boolean hidden) {

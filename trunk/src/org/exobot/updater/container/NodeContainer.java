@@ -52,13 +52,11 @@ public class NodeContainer extends HookContainer implements Task {
 				addProcessor(new AddGetterProcessor(this, "getPrevious", "L" + ACCESSOR_DESC + "Node;", cn.name, fn.name, fn.desc, false));
 			}
 		}
-		System.out.println(processSignature(cn));
 	}
 
 	@Override
 	public boolean validate(final String name, final ClassNode cn) {
-		return processSignature(cn).equals("865fef83261bf8c3c92f0c078cd3cbdc");
-		/*if (!cn.superName.equals("java/lang/Object")) {
+		if (!cn.superName.equals("java/lang/Object")) {
 			return false;
 		}
 		int nonstatic = 0;
@@ -75,6 +73,6 @@ public class NodeContainer extends HookContainer implements Task {
 			}
 			nonstatic++;
 		}
-		return nonstatic == 3 && selfInst == 2 && longs == 1;*/
+		return nonstatic == 3 && selfInst == 2 && longs == 1;
 	}
 }

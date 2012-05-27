@@ -50,7 +50,7 @@ public class ClientContainer extends HookContainer implements Task {
 				if (multiplier == -1) {
 					continue;
 				}
-				addProcessor(new AddGetterProcessor(this, "getLoginIndex", fin.desc, fin.owner, fin.name, fin.desc, !fin.owner.equals("client"), multiplier));
+				addProcessor(new AddGetterProcessor(this, "getConnectionState", fin.desc, fin.owner, fin.name, fin.desc, !fin.owner.equals("client"), multiplier));
 				break;
 			}
 		}
