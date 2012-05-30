@@ -1,15 +1,11 @@
 package org.exobot.updater.container;
 
-import java.awt.Canvas;
-import java.util.Iterator;
-import org.exobot.updater.Task;
-import org.exobot.updater.Updater;
-import org.exobot.updater.processor.AddGetterProcessor;
-import org.exobot.updater.processor.AddInterfaceProcessor;
-import org.exobot.util.MultiplierSearch;
-import org.exobot.util.RIS;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import java.awt.*;
+import java.util.*;
+import org.exobot.updater.*;
+import org.exobot.updater.processor.*;
+import org.exobot.util.*;
+import org.objectweb.asm.*;
 import org.objectweb.asm.tree.*;
 
 /**
@@ -19,7 +15,7 @@ public class ClientContainer extends HookContainer implements Task {
 
 	@Override
 	public Class<?>[] getDependencies() {
-		return new Class<?>[]{KeyboardContainer.class, MouseContainer.class, RenderDataContainer.class};
+		return new Class<?>[]{ KeyboardContainer.class, MouseContainer.class, ViewportContainer.class };
 	}
 
 	@Override
@@ -56,7 +52,7 @@ public class ClientContainer extends HookContainer implements Task {
 		}
 		final String keyboardSuperDesc = "L" + Updater.getInstance().getClasses().get("Keyboard").superName + ";";
 		final String mouseSuperDesc = "L" + Updater.getInstance().getClasses().get("Mouse").superName + ";";
-		final String renderData = Updater.getInstance().getClasses().get("RenderData").name;
+		final String renderData = Updater.getInstance().getClasses().get("Viewport").name;
 		final String renderDesc = "L" + Updater.getInstance().getClasses().get("Render").name + ";";
 		outer:
 		for (final FieldNode fn : cn.fields) {
@@ -70,7 +66,7 @@ public class ClientContainer extends HookContainer implements Task {
 				if (multiplier == -1) {
 					continue;
 				}
-				addProcessor(new AddGetterProcessor(this, "getGUIRSInterfaceIndex", fn.desc, cn.name, fn.name, fn.desc, !cn.name.equals("client"), multiplier));
+				addProcessor(new AddGetterProcessor(this, "getMainWidgetIndex", fn.desc, cn.name, fn.name, fn.desc, !cn.name.equals("client"), multiplier));
 			} else if (fn.desc.equals(Type.getDescriptor(Canvas.class))) {
 				addProcessor(new AddGetterProcessor(this, "getCanvas", fn.desc, cn.name, fn.name, fn.desc, !cn.name.equals("client")));
 			} else if (fn.desc.equals(keyboardSuperDesc)) {
@@ -87,7 +83,7 @@ public class ClientContainer extends HookContainer implements Task {
 					FieldInsnNode fin;
 					while ((fin = ris.next(FieldInsnNode.class, Opcodes.GETSTATIC)) != null) {
 						if (fin.owner.equals(cn.name) && fin.name.equals(fn.name) && fin.desc.equals(fn.desc)) {
-							addProcessor(new AddGetterProcessor(this, "getRender", "L" + ACCESSOR_DESC + "Render;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
+							addProcessor(new AddGetterProcessor(this, "getViewport", "L" + ACCESSOR_DESC + "Viewport;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
 							continue outer;
 						}
 					}

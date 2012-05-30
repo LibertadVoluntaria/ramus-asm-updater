@@ -81,7 +81,7 @@ public class Decrypter {
 		final SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
 		final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 		final byte[] ivParameterSpec = decrypt(paramn1);
-		cipher.init(2, secretKeySpec, new IvParameterSpec(ivParameterSpec));
+		cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, new IvParameterSpec(ivParameterSpec));
 		final JarFile gamepackJar = new JarFile(gamepack);
 		final JarEntry innerpackJar = gamepackJar.getJarEntry("inner.pack.gz");
 		final InputStream innerpackStream = gamepackJar.getInputStream(innerpackJar);

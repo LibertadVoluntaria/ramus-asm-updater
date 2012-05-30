@@ -21,7 +21,7 @@ import org.objectweb.asm.tree.ClassNode;
  */
 public class ClientLoader {
 
-	public static boolean LOAD_LOCAL = false;
+	public static boolean LOAD_LOCAL = true;
 
 	private final Map<String, ClassNode> classes = new LinkedHashMap<String, ClassNode>();
 	private final GameEnvironment game;
