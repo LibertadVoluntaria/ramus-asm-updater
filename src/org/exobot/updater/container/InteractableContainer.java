@@ -32,7 +32,7 @@ public class InteractableContainer extends HookContainer implements Task {
 	}
 
 	@Override
-	public void run(final String name, final ClassNode cn) {
+	public void execute(final String name, final ClassNode cn) {
 		Updater.getInstance().getClasses().set("Interactable", cn);
 		addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "Interactable"));
 		outer:
@@ -52,7 +52,7 @@ public class InteractableContainer extends HookContainer implements Task {
 	}
 
 	@Override
-	public boolean validate(final String name, final ClassNode cn) {
+	public boolean isValid(final String name, final ClassNode cn) {
 		if (!cn.superName.equals(Updater.getInstance().getClasses().get("EntityNode").name)) {
 			return false;
 		}

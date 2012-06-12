@@ -76,7 +76,7 @@ public class Decrypter {
 	}
 
 	public static Map<String, byte[]> decryptPack(final File gamepack, final String paramn1, final String param0) throws Exception {
-		final Map<String, byte[]> classes = new LinkedHashMap<String, byte[]>();
+		final Map<String, byte[]> classes = new LinkedHashMap<>();
 		final byte[] key = decrypt(param0);
 		final SecretKeySpec secretKeySpec = new SecretKeySpec(key, "AES");
 		final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");

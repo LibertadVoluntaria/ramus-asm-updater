@@ -150,7 +150,7 @@ public abstract class HookContainer implements Condition {
 	}
 
 	@Override
-	public boolean validate(final String name, final ClassNode cn) {
-		return policy != null && policy.validate(name, cn);
+	public boolean isValid(final String name, final ClassNode cn) {
+		return policy != null && policy.isValid(name, cn);
 	}
 }

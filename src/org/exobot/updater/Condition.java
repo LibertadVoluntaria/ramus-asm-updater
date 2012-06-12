@@ -7,5 +7,5 @@ import org.objectweb.asm.tree.ClassNode;
  */
 public interface Condition {
 
-	public boolean validate(final String name, final ClassNode cn);
+	public boolean isValid(final String name, final ClassNode cn);
 }

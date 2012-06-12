@@ -24,7 +24,7 @@ public class TileDataContainer extends HookContainer implements Task {
 	}
 
 	@Override
-	public void run(final String name, final ClassNode cn) {
+	public void execute(final String name, final ClassNode cn) {
 		Updater.getInstance().getClasses().set("TileData", cn);
 		addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "TileData"));
 		for (final FieldNode fn : cn.fields) {
@@ -38,7 +38,7 @@ public class TileDataContainer extends HookContainer implements Task {
 	}
 
 	@Override
-	public boolean validate(final String name, final ClassNode cn) {
+	public boolean isValid(final String name, final ClassNode cn) {
 		if ((cn.access & Opcodes.ACC_ABSTRACT) != Opcodes.ACC_ABSTRACT || !cn.superName.equals("java/lang/Object")) {
 			return false;
 		}

@@ -22,7 +22,7 @@ public class GameScene implements GameEnvironment {
 	}
 
 	public static final String HOME = "http://www.runescape.com/title.ws";
-	private final Map<String, String> parameters = new LinkedHashMap<String, String>();
+	private final Map<String, String> parameters = new LinkedHashMap<>();
 	private String game = null;
 	private String directGame = null;
 	private String archive = null;
@@ -114,7 +114,7 @@ public class GameScene implements GameEnvironment {
 	}
 
 	private Map<String, String> parseParameters() throws IOException {
-		final Map<String, String> parameters = new LinkedHashMap<String, String>();
+		final Map<String, String> parameters = new LinkedHashMap<>();
 		final Matcher matcher = Patterns.PARAMETER.matcher(Internet.downloadContent(directGame));
 		while (matcher.find()) {
 			final String key = matcher.group(1);

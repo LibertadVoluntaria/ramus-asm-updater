@@ -1,11 +1,15 @@
 package org.exobot.updater.container;
 
-import java.awt.*;
-import java.util.*;
-import org.exobot.updater.*;
-import org.exobot.updater.processor.*;
-import org.exobot.util.*;
-import org.objectweb.asm.*;
+import java.awt.Canvas;
+import java.util.Iterator;
+import org.exobot.updater.Task;
+import org.exobot.updater.Updater;
+import org.exobot.updater.processor.AddGetterProcessor;
+import org.exobot.updater.processor.AddInterfaceProcessor;
+import org.exobot.util.MultiplierSearch;
+import org.exobot.util.RIS;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 
 /**
@@ -15,12 +19,12 @@ public class ClientContainer extends HookContainer implements Task {
 
 	@Override
 	public Class<?>[] getDependencies() {
-		return new Class<?>[]{ KeyboardContainer.class, MouseContainer.class, ViewportContainer.class };
+		return new Class<?>[]{ KeyboardContainer.class, MouseContainer.class, GraphicsToolkitContainer.class };
 	}
 
 	@Override
 	public int getGetters() {
-		return 7;
+		return 6;
 	}
 
 	@Override
@@ -29,7 +33,7 @@ public class ClientContainer extends HookContainer implements Task {
 	}
 
 	@Override
-	public void run(final String name, final ClassNode cn) {
+	public void execute(final String name, final ClassNode cn) {
 		if (cn.name.equals("client")) {
 			addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "Client"));
 			for (final MethodNode mn : cn.methods) {
@@ -50,18 +54,47 @@ public class ClientContainer extends HookContainer implements Task {
 				break;
 			}
 		}
+		final String toolkit = Updater.getInstance().getClasses().get("GraphicsToolkit").name;
+		final String matrix = Updater.getInstance().getClasses().get("CameraMatrix").name;
+		for (final MethodNode mn : cn.methods) {
+			if ((mn.access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) != 0) {
+				continue;
+			}
+			final RIS ris = new RIS(mn);
+			FieldInsnNode toolkitNode;
+			FieldInsnNode fin;
+			while ((fin = ris.next(FieldInsnNode.class, Opcodes.GETSTATIC)) != null) {
+				if (!fin.desc.equals("L" + toolkit + ";")) {
+					continue;
+				}
+				toolkitNode = fin;
+				AbstractInsnNode ain = ris.next();
+				if (ain.getOpcode() != Opcodes.GETSTATIC) {
+					continue;
+				}
+				fin = (FieldInsnNode) ain;
+				if (!fin.desc.equals("L" + matrix + ";")) {
+					continue;
+				}
+				ain = ris.next();
+				if (ain.getOpcode() != Opcodes.INVOKEVIRTUAL) {
+					continue;
+				}
+				final MethodInsnNode min = (MethodInsnNode) ain;
+				if (!min.name.equals(GraphicsToolkitContainer.UPDATE_METHOD) || !min.owner.equals(toolkit) || !min.desc.equals("(L" + matrix + ";)V")) {
+					continue;
+				}
+				addProcessor(new AddGetterProcessor(this, "getGraphicsToolkit", ACCESSOR_DESC + "GraphicsToolkit", toolkitNode.owner, toolkitNode.name, toolkitNode.desc, !toolkitNode.owner.equals("client")));
+				break;
+			}
+		}
 		final String keyboardSuperDesc = "L" + Updater.getInstance().getClasses().get("Keyboard").superName + ";";
 		final String mouseSuperDesc = "L" + Updater.getInstance().getClasses().get("Mouse").superName + ";";
-		final String renderData = Updater.getInstance().getClasses().get("Viewport").name;
-		final String renderDesc = "L" + Updater.getInstance().getClasses().get("Render").name + ";";
-		outer:
 		for (final FieldNode fn : cn.fields) {
 			if ((fn.access & Opcodes.ACC_STATIC) == 0) {
 				continue;
 			}
-			if (cn.name.equals(renderData)) {
-				addProcessor(new AddGetterProcessor(this, "getRenderData", "L" + ACCESSOR_DESC + "RenderData;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
-			} else if ((fn.access & Opcodes.ACC_VOLATILE) != 0 && fn.desc.equals("I")) {
+			if ((fn.access & Opcodes.ACC_VOLATILE) != 0 && fn.desc.equals("I")) {
 				final int multiplier = new MultiplierSearch(cn.name, fn.name).getMultiplier();
 				if (multiplier == -1) {
 					continue;
@@ -73,27 +106,12 @@ public class ClientContainer extends HookContainer implements Task {
 				addProcessor(new AddGetterProcessor(this, "getKeyboard", "L" + ACCESSOR_DESC + "input/Keyboard;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
 			} else if (fn.desc.equals(mouseSuperDesc)) {
 				addProcessor(new AddGetterProcessor(this, "getMouse", "L" + ACCESSOR_DESC + "input/Mouse;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
-			} else if (fn.desc.equals(renderDesc)) {
-				final ClassNode client = Updater.getInstance().getClasses().get("client");
-				for (final MethodNode mn : client.methods) {
-					if ((mn.access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) != 0) {
-						continue;
-					}
-					final RIS ris = new RIS(mn);
-					FieldInsnNode fin;
-					while ((fin = ris.next(FieldInsnNode.class, Opcodes.GETSTATIC)) != null) {
-						if (fin.owner.equals(cn.name) && fin.name.equals(fn.name) && fin.desc.equals(fn.desc)) {
-							addProcessor(new AddGetterProcessor(this, "getViewport", "L" + ACCESSOR_DESC + "Viewport;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
-							continue outer;
-						}
-					}
-				}
 			}
 		}
 	}
 
 	@Override
-	public boolean validate(final String name, final ClassNode cn) {
+	public boolean isValid(final String name, final ClassNode cn) {
 		return true;
 	}
 }

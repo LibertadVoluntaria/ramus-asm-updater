@@ -24,7 +24,7 @@ public class ModelContainer extends HookContainer implements Task {
 	}
 
 	@Override
-	public void run(final String name, final ClassNode cn) {
+	public void execute(final String name, final ClassNode cn) {
 		Updater.getInstance().getClasses().set("Model", cn);
 		addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "Model"));
 		for (final ClassNode node : Updater.getInstance().getClasses().values()) {
@@ -98,7 +98,7 @@ public class ModelContainer extends HookContainer implements Task {
 	}
 
 	@Override
-	public boolean validate(final String name, final ClassNode cn) {
+	public boolean isValid(final String name, final ClassNode cn) {
 		if ((cn.access & Opcodes.ACC_ABSTRACT) != Opcodes.ACC_ABSTRACT || !cn.superName.equals("java/lang/Object") || cn.interfaces.size() > 0 || cn.fields.size() > 2) {
 			return false;
 		}
