@@ -19,7 +19,7 @@ public class ClientContainer extends HookContainer implements Task {
 
 	@Override
 	public Class<?>[] getDependencies() {
-		return new Class<?>[]{ KeyboardContainer.class, MouseContainer.class, GraphicsToolkitContainer.class };
+		return new Class<?>[]{ CameraMatrixContainer.class, KeyboardContainer.class, MouseContainer.class, GraphicsToolkitContainer.class };
 	}
 
 	@Override
@@ -36,56 +36,50 @@ public class ClientContainer extends HookContainer implements Task {
 	public void execute(final String name, final ClassNode cn) {
 		if (cn.name.equals("client")) {
 			addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "Client"));
+			final String toolkit = Updater.getInstance().getClasses().get("GraphicsToolkit").name;
+			final String matrix = Updater.getInstance().getClasses().get("CameraMatrix").name;
+			outer:
 			for (final MethodNode mn : cn.methods) {
-				if (!mn.name.equals("<clinit>")) {
-					continue;
-				}
 				final RIS ris = new RIS(mn);
-				final Iterator<AbstractInsnNode[]> iterator = ris.nextPattern("ldc putstatic");
-				if (!iterator.hasNext() || iterator.next() == null || !iterator.hasNext()) {
-					break;
-				}
-				final FieldInsnNode fin = (FieldInsnNode) iterator.next()[1];
-				final int multiplier = new MultiplierSearch(fin.owner, fin.name).getMultiplier();
-				if (multiplier == -1) {
+				if (mn.name.equals("<clinit>")) {
+					final Iterator<AbstractInsnNode[]> iterator = ris.nextPattern("ldc putstatic");
+					if (!iterator.hasNext() || iterator.next() == null || !iterator.hasNext()) {
+						break;
+					}
+					final FieldInsnNode fin = (FieldInsnNode) iterator.next()[1];
+					final int multiplier = new MultiplierSearch(fin.owner, fin.name).getMultiplier();
+					if (multiplier == -1) {
+						continue;
+					}
+					addProcessor(new AddGetterProcessor(this, "getConnectionState", fin.desc, fin.owner, fin.name, fin.desc, !fin.owner.equals("client"), multiplier));
 					continue;
 				}
-				addProcessor(new AddGetterProcessor(this, "getConnectionState", fin.desc, fin.owner, fin.name, fin.desc, !fin.owner.equals("client"), multiplier));
-				break;
-			}
-		}
-		final String toolkit = Updater.getInstance().getClasses().get("GraphicsToolkit").name;
-		final String matrix = Updater.getInstance().getClasses().get("CameraMatrix").name;
-		for (final MethodNode mn : cn.methods) {
-			if ((mn.access & (Opcodes.ACC_ABSTRACT | Opcodes.ACC_NATIVE)) != 0) {
-				continue;
-			}
-			final RIS ris = new RIS(mn);
-			FieldInsnNode toolkitNode;
-			FieldInsnNode fin;
-			while ((fin = ris.next(FieldInsnNode.class, Opcodes.GETSTATIC)) != null) {
-				if (!fin.desc.equals("L" + toolkit + ";")) {
-					continue;
+				FieldInsnNode toolkitNode;
+				FieldInsnNode fin;
+				while ((fin = ris.next(FieldInsnNode.class, Opcodes.GETSTATIC)) != null) {
+					if (!fin.desc.equals("L" + toolkit + ";")) {
+						continue;
+					}
+					toolkitNode = fin;
+					AbstractInsnNode ain = ris.next();
+					if (ain.getOpcode() != Opcodes.GETSTATIC) {
+						continue;
+					}
+					fin = (FieldInsnNode) ain;
+					if (!fin.desc.equals("L" + matrix + ";")) {
+						continue;
+					}
+					ain = ris.next();
+					if (ain.getOpcode() != Opcodes.INVOKEVIRTUAL) {
+						continue;
+					}
+					final MethodInsnNode min = (MethodInsnNode) ain;
+					if (!min.owner.equals(toolkit) || !min.desc.equals("(L" + matrix + ";)V")) {
+						continue;
+					}
+					addProcessor(new AddGetterProcessor(this, "getGraphicsToolkit", ACCESSOR_DESC + "GraphicsToolkit", toolkitNode.owner, toolkitNode.name, toolkitNode.desc, !toolkitNode.owner.equals("client")));
+					break outer;
 				}
-				toolkitNode = fin;
-				AbstractInsnNode ain = ris.next();
-				if (ain.getOpcode() != Opcodes.GETSTATIC) {
-					continue;
-				}
-				fin = (FieldInsnNode) ain;
-				if (!fin.desc.equals("L" + matrix + ";")) {
-					continue;
-				}
-				ain = ris.next();
-				if (ain.getOpcode() != Opcodes.INVOKEVIRTUAL) {
-					continue;
-				}
-				final MethodInsnNode min = (MethodInsnNode) ain;
-				if (!min.name.equals(GraphicsToolkitContainer.UPDATE_METHOD) || !min.owner.equals(toolkit) || !min.desc.equals("(L" + matrix + ";)V")) {
-					continue;
-				}
-				addProcessor(new AddGetterProcessor(this, "getGraphicsToolkit", ACCESSOR_DESC + "GraphicsToolkit", toolkitNode.owner, toolkitNode.name, toolkitNode.desc, !toolkitNode.owner.equals("client")));
-				break;
 			}
 		}
 		final String keyboardSuperDesc = "L" + Updater.getInstance().getClasses().get("Keyboard").superName + ";";

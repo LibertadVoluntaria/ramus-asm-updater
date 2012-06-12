@@ -16,7 +16,6 @@ import org.objectweb.asm.tree.*;
  */
 public class GraphicsToolkitContainer extends HookContainer implements Task {
 
-	public static String UPDATE_METHOD = "";
 	private final String[] FLOATS = { "ZOffset", "ZX", "ZY", "ZZ", "XOffset", "XX", "XY", "XZ", "YOffset", "YX", "YY", "YZ", "YOff" };
 	private final String[] TOOLKIT = { "AbsoluteX", "AbsoluteY", "XMultiplier", "YMultiplier" };
 
