@@ -22,16 +22,21 @@ public class AddGetterProcessor extends Processor {
 	private final int access;
 	private final boolean isStatic;
 	private final int multiplier;
+	private final int arrayIndex;
 
 	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic) {
-		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, -1, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, -1, -1, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 	}
 
 	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier) {
-		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, -1, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 	}
 
-	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier, final int access) {
+	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier, final int arrayIndex) {
+		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, arrayIndex, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+	}
+
+	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier, final int arrayIndex, final int access) {
 		this.cc = cc;
 		this.name = name;
 		this.parent = parent;
@@ -41,6 +46,7 @@ public class AddGetterProcessor extends Processor {
 		this.access = access;
 		this.isStatic = isStatic;
 		this.multiplier = multiplier;
+		this.arrayIndex = arrayIndex;
 	}
 
 	@Override
@@ -59,7 +65,7 @@ public class AddGetterProcessor extends Processor {
 
 	@Override
 	public String getOutput() {
-		return "@ " + name + "() --> " + (isStatic ? "static " : "") + returnDesc + " " + parent + "." + field +
+		return "@ " + name + "() --> " + (isStatic ? "static " : "") + returnDesc + " " + parent + "." + field + (arrayIndex != -1 ? "[" + arrayIndex + "]" : "") +
 				(multiplier != -1 ? " * " + multiplier : "");
 	}
 
@@ -76,6 +82,7 @@ public class AddGetterProcessor extends Processor {
 		stream.writeString(parent);
 		stream.writeString(field);
 		stream.writeString(fieldDesc.getDescriptor());
+		stream.writeInt(arrayIndex);
 		stream.writeInt(multiplier);
 		stream.write(0xA);
 	}

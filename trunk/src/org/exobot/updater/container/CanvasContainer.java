@@ -16,13 +16,13 @@ public class CanvasContainer extends HookContainer implements Task {
 	}
 
 	@Override
-	public void run(final String name, final ClassNode cn) {
+	public void execute(final String name, final ClassNode cn) {
 		Updater.getInstance().getClasses().set("Canvas", cn);
 		addProcessor(new SetSuperProcessor(this, cn.name, ACCESSOR_DESC + "input/Canvas"));
 	}
 
 	@Override
-	public boolean validate(final String name, final ClassNode cn) {
+	public boolean isValid(final String name, final ClassNode cn) {
 		return cn.superName.equals("java/awt/Canvas");
 	}
 }

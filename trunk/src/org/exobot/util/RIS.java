@@ -106,8 +106,8 @@ public class RIS {
 		int nodeIdx = 0;
 		int patternIdx = 0;
 		outer:
-		for (++index; index < array.length; ++index) {
-			final AbstractInsnNode ain = array[index];
+		for (int idx = index; idx < array.length; ++idx) {
+			final AbstractInsnNode ain = array[idx];
 			final List<Integer> codes = compilePattern(parts[patternIdx]);
 			for (final int code : codes) {
 				if (code != ain.getOpcode()) {
@@ -118,12 +118,13 @@ public class RIS {
 					final AbstractInsnNode[] nodes = new AbstractInsnNode[parts.length];
 					System.arraycopy(getArray(), nodeIdx, nodes, 0, parts.length);
 					matches.add(nodes);
-					index = nodeIdx++;
+					idx = nodeIdx++;
+					index = nodeIdx;
 					patternIdx = 0;
 				}
 				continue outer;
 			}
-			index = nodeIdx++;
+			idx = nodeIdx++;
 			patternIdx = 0;
 		}
 		return matches.iterator();

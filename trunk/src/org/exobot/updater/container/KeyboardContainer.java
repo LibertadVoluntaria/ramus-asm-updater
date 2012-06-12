@@ -24,7 +24,7 @@ public class KeyboardContainer extends HookContainer implements Task {
 	}
 
 	@Override
-	public void run(final String name, final ClassNode cn) {
+	public void execute(final String name, final ClassNode cn) {
 		Updater.getInstance().getClasses().set("Keyboard", cn);
 		final ClassNode supercn = Updater.getInstance().getClasses().get(cn.superName);
 		addProcessor(new SetSuperProcessor(this, supercn.name, ACCESSOR_DESC + "input/Keyboard"));
@@ -37,7 +37,7 @@ public class KeyboardContainer extends HookContainer implements Task {
 	}
 
 	@Override
-	public boolean validate(final String name, final ClassNode cn) {
+	public boolean isValid(final String name, final ClassNode cn) {
 		final List<String> interfaces = cn.interfaces;
 		for (final String iface : interfaces) {
 			if (iface.equals("java/awt/event/KeyListener")) {

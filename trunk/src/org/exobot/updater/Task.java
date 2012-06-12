@@ -7,5 +7,5 @@ import org.objectweb.asm.tree.ClassNode;
  */
 public interface Task {
 
-	public void run(final String name, final ClassNode cn);
+	public void execute(final String name, final ClassNode cn);
 }

@@ -23,7 +23,7 @@ public class ClientLoader {
 
 	public static boolean LOAD_LOCAL = false;
 
-	private final Map<String, ClassNode> classes = new LinkedHashMap<String, ClassNode>();
+	private final Map<String, ClassNode> classes = new LinkedHashMap<>();
 	private final GameEnvironment game;
 
 	public ClientLoader() {

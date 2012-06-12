@@ -34,8 +34,8 @@ public class Updater extends Thread implements Runnable {
 		instance.start();
 	}
 
-	private final List<HookContainer> containers = new LinkedList<HookContainer>();
-	private final ExoMap<String, ClassNode> classes = new ExoMap<String, ClassNode>();
+	private final List<HookContainer> containers = new LinkedList<>();
+	private final ExoMap<String, ClassNode> classes = new ExoMap<>();
 
 	@Override
 	public void run() {
@@ -54,19 +54,19 @@ public class Updater extends Thread implements Runnable {
 		System.out.println("Executing containers.");
 		System.out.println();
 		HookContainer.sort(containers);
-		Map<String, ClassNode> classes = new ExoMap<String, ClassNode>(this.classes);
+		Map<String, ClassNode> classes = new ExoMap<>(this.classes);
 		final long startTime = System.currentTimeMillis();
 		for (final HookContainer hc : containers) {
 			for (final Map.Entry<String, ClassNode> entry : classes.entrySet()) {
 				final String name = entry.getKey();
 				final ClassNode cn = entry.getValue();
-				if (!hc.validate(name, cn)) {
+				if (!hc.isValid(name, cn)) {
 					continue;
 				}
 				for (final Task task : hc.getTasks()) {
-					task.run(name, cn);
+					task.execute(name, cn);
 				}
-				classes = new ExoMap<String, ClassNode>(this.classes);
+				classes = new ExoMap<>(this.classes);
 			}
 		}
 		this.classes.clear();
@@ -131,7 +131,7 @@ public class Updater extends Thread implements Runnable {
 		try {
 			System.out.println("Generating modscript.");
 			final StreamWriter stream = new StreamWriter();
-			final List<Processor> processors = new LinkedList<Processor>();
+			final List<Processor> processors = new LinkedList<>();
 			int numProcessors = 0;
 			for (final HookContainer hc : containers) {
 				if (hc.isHidden()) {
@@ -193,6 +193,15 @@ public class Updater extends Thread implements Runnable {
 
 	public ExoMap<String, ClassNode> getClasses() {
 		return classes;
+	}
+
+	public HookContainer getContainer(final String name) {
+		for (final HookContainer hc : containers) {
+			if (hc.getName().equals(name)) {
+				return hc;
+			}
+		}
+		return null;
 	}
 
 	private int getRSBuild() {
