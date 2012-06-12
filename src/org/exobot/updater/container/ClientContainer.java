@@ -19,7 +19,8 @@ public class ClientContainer extends HookContainer implements Task {
 
 	@Override
 	public Class<?>[] getDependencies() {
-		return new Class<?>[]{ CameraMatrixContainer.class, KeyboardContainer.class, MouseContainer.class, GraphicsToolkitContainer.class };
+		return new Class<?>[]{ CameraMatrixContainer.class, KeyboardContainer.class, MouseContainer.class,
+				GraphicsToolkitContainer.class };
 	}
 
 	@Override
@@ -36,50 +37,58 @@ public class ClientContainer extends HookContainer implements Task {
 	public void execute(final String name, final ClassNode cn) {
 		if (cn.name.equals("client")) {
 			addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "Client"));
-			final String toolkit = Updater.getInstance().getClasses().get("GraphicsToolkit").name;
-			final String matrix = Updater.getInstance().getClasses().get("CameraMatrix").name;
-			outer:
-			for (final MethodNode mn : cn.methods) {
-				final RIS ris = new RIS(mn);
-				if (mn.name.equals("<clinit>")) {
-					final Iterator<AbstractInsnNode[]> iterator = ris.nextPattern("ldc putstatic");
-					if (!iterator.hasNext() || iterator.next() == null || !iterator.hasNext()) {
-						break;
-					}
-					final FieldInsnNode fin = (FieldInsnNode) iterator.next()[1];
-					final int multiplier = new MultiplierSearch(fin.owner, fin.name).getMultiplier();
-					if (multiplier == -1) {
-						continue;
-					}
-					addProcessor(new AddGetterProcessor(this, "getConnectionState", fin.desc, fin.owner, fin.name, fin.desc, !fin.owner.equals("client"), multiplier));
+		}
+		final String toolkit = Updater.getInstance().getClasses().get("GraphicsToolkit").name;
+		final String matrix = Updater.getInstance().getClasses().get("CameraMatrix").name;
+		boolean state = true, graphics = true;
+		for (final MethodNode mn : cn.methods) {
+			if (!state && !graphics) {
+				break;
+			}
+			final RIS ris = new RIS(mn);
+			if (state && cn.name.equals("client") && mn.name.equals("<clinit>")) {
+				final Iterator<AbstractInsnNode[]> iterator = ris.nextPattern("ldc putstatic");
+				if (!iterator.hasNext() || iterator.next() == null || !iterator.hasNext()) {
+					break;
+				}
+				final FieldInsnNode fin = (FieldInsnNode) iterator.next()[1];
+				final int multiplier = new MultiplierSearch(fin.owner, fin.name).getMultiplier();
+				if (multiplier == -1) {
 					continue;
 				}
-				FieldInsnNode toolkitNode;
-				FieldInsnNode fin;
-				while ((fin = ris.next(FieldInsnNode.class, Opcodes.GETSTATIC)) != null) {
-					if (!fin.desc.equals("L" + toolkit + ";")) {
-						continue;
-					}
-					toolkitNode = fin;
-					AbstractInsnNode ain = ris.next();
-					if (ain.getOpcode() != Opcodes.GETSTATIC) {
-						continue;
-					}
-					fin = (FieldInsnNode) ain;
-					if (!fin.desc.equals("L" + matrix + ";")) {
-						continue;
-					}
-					ain = ris.next();
-					if (ain.getOpcode() != Opcodes.INVOKEVIRTUAL) {
-						continue;
-					}
-					final MethodInsnNode min = (MethodInsnNode) ain;
-					if (!min.owner.equals(toolkit) || !min.desc.equals("(L" + matrix + ";)V")) {
-						continue;
-					}
-					addProcessor(new AddGetterProcessor(this, "getGraphicsToolkit", ACCESSOR_DESC + "GraphicsToolkit", toolkitNode.owner, toolkitNode.name, toolkitNode.desc, !toolkitNode.owner.equals("client")));
-					break outer;
+				addProcessor(new AddGetterProcessor(this, "getConnectionState", fin.desc, fin.owner, fin.name, fin.desc, !fin.owner.equals("client"), multiplier));
+				state = false;
+				continue;
+			}
+			if (!graphics) {
+				continue;
+			}
+			FieldInsnNode toolkitNode;
+			FieldInsnNode fin;
+			while ((fin = ris.next(FieldInsnNode.class, Opcodes.GETSTATIC)) != null) {
+				if (!fin.desc.equals("L" + toolkit + ";")) {
+					continue;
 				}
+				toolkitNode = fin;
+				AbstractInsnNode ain = ris.next();
+				if (ain.getOpcode() != Opcodes.GETSTATIC) {
+					continue;
+				}
+				fin = (FieldInsnNode) ain;
+				if (!fin.desc.equals("L" + matrix + ";")) {
+					continue;
+				}
+				ain = ris.next();
+				if (ain.getOpcode() != Opcodes.INVOKEVIRTUAL) {
+					continue;
+				}
+				final MethodInsnNode min = (MethodInsnNode) ain;
+				if (!min.owner.equals(toolkit) || !min.desc.equals("(L" + matrix + ";)V")) {
+					continue;
+				}
+				addProcessor(new AddGetterProcessor(this, "getGraphicsToolkit", ACCESSOR_DESC + "GraphicsToolkit", toolkitNode.owner, toolkitNode.name, toolkitNode.desc, !toolkitNode.owner.equals("client")));
+				graphics = false;
+				break;
 			}
 		}
 		final String keyboardSuperDesc = "L" + Updater.getInstance().getClasses().get("Keyboard").superName + ";";
