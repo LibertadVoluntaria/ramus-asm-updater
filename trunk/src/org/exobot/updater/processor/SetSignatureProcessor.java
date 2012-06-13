@@ -31,7 +31,8 @@ public class SetSignatureProcessor extends Processor {
 			return false;
 		}
 		final SetSignatureProcessor p = (SetSignatureProcessor) o;
-		return p.cc.equals(cc) && p.name.equals(name) && p.desc.equals(desc) && p.newAccess == newAccess && p.newName.equals(newName) && p.newDesc.equals(newDesc);
+		return p.cc.equals(cc) && p.name.equals(name) && p.desc.equals(desc) && p.newAccess == newAccess &&
+				p.newName.equals(newName) && p.newDesc.equals(newDesc);
 	}
 
 	@Override

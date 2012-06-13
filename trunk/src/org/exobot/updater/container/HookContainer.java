@@ -18,7 +18,7 @@ public abstract class HookContainer implements Condition {
 
 	public static final String ACCESSOR_DESC = "org/exobot/game/client/";
 
-	private final List<Processor> processors = new LinkedList<Processor>();
+	private final List<Processor> processors = new LinkedList<>();
 	private final Condition policy;
 	private Task[] tasks = null;
 	private boolean hidden;
@@ -32,7 +32,7 @@ public abstract class HookContainer implements Condition {
 	}
 
 	public HookContainer(final Task task) {
-		this(null, new Task[]{task});
+		this(null, new Task[]{ task });
 	}
 
 	public HookContainer(final Task[] tasks) {
@@ -40,7 +40,7 @@ public abstract class HookContainer implements Condition {
 	}
 
 	public HookContainer(final Condition policy, final Task task) {
-		this(policy, new Task[]{task});
+		this(policy, new Task[]{ task });
 	}
 
 	public HookContainer(final Condition policy, final Task[] tasks) {
@@ -50,6 +50,9 @@ public abstract class HookContainer implements Condition {
 	}
 
 	protected final void addProcessor(final Processor p) {
+		if (processors.contains(p)) {
+			return;
+		}
 		processors.add(p);
 	}
 
@@ -128,7 +131,7 @@ public abstract class HookContainer implements Condition {
 	}
 
 	public final void setTask(final Task task) {
-		setTasks(new Task[]{task});
+		setTasks(new Task[]{ task });
 	}
 
 	public final void setTasks(final Task[] tasks) {

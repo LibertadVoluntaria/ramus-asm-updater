@@ -18,7 +18,7 @@ public class NodeSubContainer extends HookContainer implements Task {
 
 	@Override
 	public Class<?>[] getDependencies() {
-		return new Class<?>[]{NodeContainer.class};
+		return new Class<?>[]{ NodeContainer.class };
 	}
 
 	@Override
@@ -40,7 +40,8 @@ public class NodeSubContainer extends HookContainer implements Task {
 			final RIS ris = new RIS(mn);
 			FieldInsnNode fin;
 			if ((fin = ris.next(FieldInsnNode.class, Opcodes.GETFIELD)) != null) {
-				addProcessor(new AddGetterProcessor(this, "getNextSub", "L" + ACCESSOR_DESC + "NodeSub;", cn.name, getNext = fin.name, fin.desc, false));
+				addProcessor(new AddGetterProcessor(this, "getNextSub", "L" + ACCESSOR_DESC + "NodeSub;", cn.name,
+						getNext = fin.name, fin.desc, false));
 				break;
 			}
 		}
@@ -48,10 +49,12 @@ public class NodeSubContainer extends HookContainer implements Task {
 			return;
 		}
 		for (final FieldNode fn : cn.fields) {
-			if ((fn.access & Opcodes.ACC_STATIC) != 0 || fn.name.equals(getNext) || !fn.desc.equals("L" + cn.name + ";")) {
+			if ((fn.access & Opcodes.ACC_STATIC) != 0 || fn.name.equals(getNext) ||
+					!fn.desc.equals("L" + cn.name + ";")) {
 				continue;
 			}
-			addProcessor(new AddGetterProcessor(this, "getPrevSub", "L" + ACCESSOR_DESC + "NodeSub;", cn.name, fn.name, fn.desc, false));
+			addProcessor(new AddGetterProcessor(this, "getPrevSub", "L" + ACCESSOR_DESC + "NodeSub;", cn.name, fn.name,
+					fn.desc, false));
 		}
 	}
 

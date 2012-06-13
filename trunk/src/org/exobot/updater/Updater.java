@@ -154,7 +154,8 @@ public class Updater extends Thread implements Runnable {
 
 				@Override
 				public int compare(final Processor p, final Processor q) {
-					return Integer.compare(p.getId() == Processor.Id.GET_STATIC ? Processor.Id.GET_FIELD : p.getId(), q.getId() == Processor.Id.GET_STATIC ? Processor.Id.GET_FIELD : q.getId());
+					return Integer.compare(p.getId() == Processor.Id.GET_STATIC ? Processor.Id.GET_FIELD : p.getId(),
+							q.getId() == Processor.Id.GET_STATIC ? Processor.Id.GET_FIELD : q.getId());
 				}
 			});
 			stream.writeInt(0xFADFAD);
@@ -169,14 +170,16 @@ public class Updater extends Thread implements Runnable {
 					if (!p.getContainer().equals(getterContainer)) {
 						getterContainer = p.getContainer();
 						stream.write(p.getId());
-						stream.writeString(classes.containsKey(getterContainer.getName()) ? classes.get(getterContainer.getName()).name : getterContainer.getName().toLowerCase());
+						stream.writeString(classes.containsKey(getterContainer.getName()) ? classes.get(
+								getterContainer.getName()).name : getterContainer.getName().toLowerCase());
 						stream.writeShort(getterContainer.getSize(AddGetterProcessor.class));
 					}
 				} else if (p instanceof SetSignatureProcessor) {
 					if (!p.getContainer().equals(sigContainer)) {
 						sigContainer = p.getContainer();
 						stream.write(p.getId());
-						stream.writeString(classes.containsKey(sigContainer.getName()) ? classes.get(sigContainer.getName()).name : sigContainer.getName().toLowerCase());
+						stream.writeString(classes.containsKey(sigContainer.getName()) ? classes.get(
+								sigContainer.getName()).name : sigContainer.getName().toLowerCase());
 						stream.writeShort(sigContainer.getSize(SetSignatureProcessor.class));
 					}
 				}

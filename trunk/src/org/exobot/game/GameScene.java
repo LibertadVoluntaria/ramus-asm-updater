@@ -73,7 +73,8 @@ public class GameScene implements GameEnvironment {
 			parameters.clear();
 			parameters.putAll(parseParameters());
 			code = parseCode();
-			world = Integer.parseInt(directGame.substring(directGame.indexOf("world") + 5, directGame.indexOf(".runescape")));
+			world = Integer.parseInt(
+					directGame.substring(directGame.indexOf("world") + 5, directGame.indexOf(".runescape")));
 		} catch (final IOException e) {
 			throw new RuntimeException("Unable to load game scene.");
 		}

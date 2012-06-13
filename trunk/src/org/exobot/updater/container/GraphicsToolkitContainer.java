@@ -16,7 +16,8 @@ import org.objectweb.asm.tree.*;
  */
 public class GraphicsToolkitContainer extends HookContainer implements Task {
 
-	private final String[] FLOATS = { "ZOffset", "ZX", "ZY", "ZZ", "XOffset", "XX", "XY", "XZ", "YOffset", "YX", "YY", "YZ", "YOff" };
+	private final String[] FLOATS = { "ZOffset", "ZX", "ZY", "ZZ", "XOffset", "XX", "XY", "XZ", "YOffset", "YX", "YY",
+			"YZ", "YOff" };
 	private final String[] TOOLKIT = { "AbsoluteX", "AbsoluteY", "XMultiplier", "YMultiplier" };
 
 	@Override
@@ -52,13 +53,16 @@ public class GraphicsToolkitContainer extends HookContainer implements Task {
 				if (!(matrix = ris.next(FieldInsnNode.class, Opcodes.GETFIELD)).desc.equals(matrixDesc)) {
 					continue;
 				}
-				addProcessor(new AddGetterProcessor(this, "getCameraMatrix", ACCESSOR_DESC + "CameraMatrix;", matrix.owner, matrix.name, matrix.desc, false));
+				addProcessor(
+						new AddGetterProcessor(this, "getCameraMatrix", ACCESSOR_DESC + "CameraMatrix;", matrix.owner,
+								matrix.name, matrix.desc, false));
 				final FieldInsnNode floats = ris.next(FieldInsnNode.class, Opcodes.GETFIELD);
 				if (!floats.desc.equals("[F")) {
 					continue;
 				}
 				ris.setPosition(0);
-				final Iterator<AbstractInsnNode[]> iterator = ris.nextPattern("(iconst_0|iconst_1|iconst_2|iconst_3|iconst_4|iconst_5|bipush)");
+				final Iterator<AbstractInsnNode[]> iterator = ris.nextPattern(
+						"(iconst_0|iconst_1|iconst_2|iconst_3|iconst_4|iconst_5|bipush)");
 				for (int i = 0; i < 12 && iterator.hasNext(); i++) {
 					final AbstractInsnNode ain = iterator.next()[0];
 					final int value;
@@ -70,14 +74,18 @@ public class GraphicsToolkitContainer extends HookContainer implements Task {
 						value = -1;
 					}
 					final HookContainer matrixHC = Updater.getInstance().getContainer("CameraMatrix");
-					matrixHC.addProcessor(new AddGetterProcessor(matrixHC, "get" + FLOATS[i], "F", floats.owner, floats.name, "F", false, -1, value));
+					matrixHC.addProcessor(
+							new AddGetterProcessor(matrixHC, "get" + FLOATS[i], "F", floats.owner, floats.name, "F",
+									false, -1, value));
 				}
 				int i = 0;
 				ris.setPosition(0);
 				FieldInsnNode nextFloat;
 				while ((nextFloat = ris.next(FieldInsnNode.class, Opcodes.GETFIELD)) != null && i < 4) {
 					if (nextFloat.desc.equals("F")) {
-						addProcessor(new AddGetterProcessor(this, "get" + TOOLKIT[i++], "F", nextFloat.owner, nextFloat.name, "F", false));
+						addProcessor(
+								new AddGetterProcessor(this, "get" + TOOLKIT[i++], "F", nextFloat.owner, nextFloat.name,
+										"F", false));
 					}
 				}
 				break;

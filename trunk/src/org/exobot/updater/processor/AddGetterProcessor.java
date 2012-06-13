@@ -29,11 +29,13 @@ public class AddGetterProcessor extends Processor {
 	}
 
 	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier) {
-		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, -1, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, -1,
+				Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 	}
 
 	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier, final int arrayIndex) {
-		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, arrayIndex, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, arrayIndex,
+				Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 	}
 
 	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier, final int arrayIndex, final int access) {
@@ -55,7 +57,9 @@ public class AddGetterProcessor extends Processor {
 			return false;
 		}
 		final AddGetterProcessor p = (AddGetterProcessor) o;
-		return p.name.equals(name) && p.cc.equals(cc) && p.returnDesc.equals(returnDesc) && p.isStatic == isStatic;
+		return p.name.equals(name) && p.cc.equals(cc) && p.returnDesc.equals(returnDesc) && p.isStatic == isStatic &&
+				p.parent.equals(parent) && p.field.equals(field) && p.arrayIndex == arrayIndex &&
+				p.multiplier == multiplier;
 	}
 
 	@Override
@@ -65,7 +69,8 @@ public class AddGetterProcessor extends Processor {
 
 	@Override
 	public String getOutput() {
-		return "@ " + name + "() --> " + (isStatic ? "static " : "") + returnDesc + " " + parent + "." + field + (arrayIndex != -1 ? "[" + arrayIndex + "]" : "") +
+		return "@ " + name + "() --> " + (isStatic ? "static " : "") + returnDesc + " " + parent + "." + field +
+				(arrayIndex != -1 ? "[" + arrayIndex + "]" : "") +
 				(multiplier != -1 ? " * " + multiplier : "");
 	}
 
