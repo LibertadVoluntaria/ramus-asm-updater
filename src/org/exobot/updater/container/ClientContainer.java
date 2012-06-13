@@ -40,13 +40,9 @@ public class ClientContainer extends HookContainer implements Task {
 		}
 		final String toolkit = Updater.getInstance().getClasses().get("GraphicsToolkit").name;
 		final String matrix = Updater.getInstance().getClasses().get("CameraMatrix").name;
-		boolean state = true, graphics = true;
 		for (final MethodNode mn : cn.methods) {
-			if (!state && !graphics) {
-				break;
-			}
 			final RIS ris = new RIS(mn);
-			if (state && cn.name.equals("client") && mn.name.equals("<clinit>")) {
+			if (cn.name.equals("client") && mn.name.equals("<clinit>")) {
 				final Iterator<AbstractInsnNode[]> iterator = ris.nextPattern("ldc putstatic");
 				if (!iterator.hasNext() || iterator.next() == null || !iterator.hasNext()) {
 					break;
@@ -56,11 +52,8 @@ public class ClientContainer extends HookContainer implements Task {
 				if (multiplier == -1) {
 					continue;
 				}
-				addProcessor(new AddGetterProcessor(this, "getConnectionState", fin.desc, fin.owner, fin.name, fin.desc, !fin.owner.equals("client"), multiplier));
-				state = false;
-				continue;
-			}
-			if (!graphics) {
+				addProcessor(new AddGetterProcessor(this, "getConnectionState", fin.desc, fin.owner, fin.name, fin.desc,
+						!fin.owner.equals("client"), multiplier));
 				continue;
 			}
 			FieldInsnNode toolkitNode;
@@ -86,8 +79,8 @@ public class ClientContainer extends HookContainer implements Task {
 				if (!min.owner.equals(toolkit) || !min.desc.equals("(L" + matrix + ";)V")) {
 					continue;
 				}
-				addProcessor(new AddGetterProcessor(this, "getGraphicsToolkit", ACCESSOR_DESC + "GraphicsToolkit", toolkitNode.owner, toolkitNode.name, toolkitNode.desc, !toolkitNode.owner.equals("client")));
-				graphics = false;
+				addProcessor(new AddGetterProcessor(this, "getGraphicsToolkit", ACCESSOR_DESC + "GraphicsToolkit",
+						toolkitNode.owner, toolkitNode.name, toolkitNode.desc, !toolkitNode.owner.equals("client")));
 				break;
 			}
 		}
@@ -102,13 +95,19 @@ public class ClientContainer extends HookContainer implements Task {
 				if (multiplier == -1) {
 					continue;
 				}
-				addProcessor(new AddGetterProcessor(this, "getMainWidgetIndex", fn.desc, cn.name, fn.name, fn.desc, !cn.name.equals("client"), multiplier));
+				addProcessor(new AddGetterProcessor(this, "getMainWidgetIndex", fn.desc, cn.name, fn.name, fn.desc,
+						!cn.name.equals("client"), multiplier));
 			} else if (fn.desc.equals(Type.getDescriptor(Canvas.class))) {
-				addProcessor(new AddGetterProcessor(this, "getCanvas", fn.desc, cn.name, fn.name, fn.desc, !cn.name.equals("client")));
+				addProcessor(new AddGetterProcessor(this, "getCanvas", fn.desc, cn.name, fn.name, fn.desc,
+						!cn.name.equals("client")));
 			} else if (fn.desc.equals(keyboardSuperDesc)) {
-				addProcessor(new AddGetterProcessor(this, "getKeyboard", "L" + ACCESSOR_DESC + "input/Keyboard;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
+				addProcessor(
+						new AddGetterProcessor(this, "getKeyboard", "L" + ACCESSOR_DESC + "input/Keyboard;", cn.name,
+								fn.name, fn.desc, !cn.name.equals("client")));
 			} else if (fn.desc.equals(mouseSuperDesc)) {
-				addProcessor(new AddGetterProcessor(this, "getMouse", "L" + ACCESSOR_DESC + "input/Mouse;", cn.name, fn.name, fn.desc, !cn.name.equals("client")));
+				addProcessor(
+						new AddGetterProcessor(this, "getMouse", "L" + ACCESSOR_DESC + "input/Mouse;", cn.name, fn.name,
+								fn.desc, !cn.name.equals("client")));
 			}
 		}
 	}

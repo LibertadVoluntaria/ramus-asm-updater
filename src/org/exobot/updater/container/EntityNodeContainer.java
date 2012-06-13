@@ -43,8 +43,12 @@ public class EntityNodeContainer extends HookContainer implements Task {
 			}
 			final FieldInsnNode prev = (FieldInsnNode) nodes[0];
 			final FieldInsnNode next = (FieldInsnNode) nodes[2];
-			addProcessor(new AddGetterProcessor(this, "getPrevious", "L" + ACCESSOR_DESC + "EntityNode;", cn.name, prev.name, prev.desc, false));
-			addProcessor(new AddGetterProcessor(this, "getNext", "L" + ACCESSOR_DESC + "EntityNode;", cn.name, next.name, next.desc, false));
+			addProcessor(
+					new AddGetterProcessor(this, "getPrevious", "L" + ACCESSOR_DESC + "EntityNode;", cn.name, prev.name,
+							prev.desc, false));
+			addProcessor(
+					new AddGetterProcessor(this, "getNext", "L" + ACCESSOR_DESC + "EntityNode;", cn.name, next.name,
+							next.desc, false));
 			break;
 		}
 	}

@@ -28,7 +28,8 @@ public class ModelContainer extends HookContainer implements Task {
 		Updater.getInstance().getClasses().set("Model", cn);
 		addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "Model"));
 		for (final ClassNode node : Updater.getInstance().getClasses().values()) {
-			if (!node.superName.equals(cn.name) || node.interfaces.size() > 0 || node.fields.size() < 50 || node.methods.size() < 70) {
+			if (!node.superName.equals(cn.name) || node.interfaces.size() > 0 || node.fields.size() < 50 ||
+					node.methods.size() < 70) {
 				continue;
 			}
 			int selfArr = 0;
@@ -58,7 +59,8 @@ public class ModelContainer extends HookContainer implements Task {
 					String[] fields = new String[3];
 					for (int i = 0; i < 3; i++) {
 						final FieldInsnNode fin = ris.next(FieldInsnNode.class, Opcodes.GETFIELD);
-						if (fin == null || !fin.desc.equals("[S") || (fields[0] != null && fin.name.equals(fields[0]))) {
+						if (fin == null || !fin.desc.equals("[S") ||
+								(fields[0] != null && fin.name.equals(fields[0]))) {
 							fields = null;
 							break;
 						}
@@ -66,7 +68,9 @@ public class ModelContainer extends HookContainer implements Task {
 					}
 					if (fields != null) {
 						for (int i = 1; i < 4; i++) {
-							addProcessor(new AddGetterProcessor(this, "getIndices" + i, "[S", node.name, fields[i - 1], "[S", false));
+							addProcessor(
+									new AddGetterProcessor(this, "getIndices" + i, "[S", node.name, fields[i - 1], "[S",
+											false));
 						}
 						foundIndices = true;
 					}
@@ -80,7 +84,8 @@ public class ModelContainer extends HookContainer implements Task {
 					continue;
 				}
 				for (int i = 0; i < 5; i++) {
-					if (ain.getNext() == null || (ain = ain.getNext().getNext()) == null || ain.getOpcode() != Opcodes.SIPUSH) {
+					if (ain.getNext() == null || (ain = ain.getNext().getNext()) == null ||
+							ain.getOpcode() != Opcodes.SIPUSH) {
 						continue outer;
 					}
 				}
@@ -90,7 +95,9 @@ public class ModelContainer extends HookContainer implements Task {
 					if (fin == null) {
 						continue outer;
 					}
-					addProcessor(new AddGetterProcessor(this, "get" + (char) (88 + i) + "Points", "[I", node.name, fin.name, "[I", false));
+					addProcessor(
+							new AddGetterProcessor(this, "get" + (char) (88 + i) + "Points", "[I", node.name, fin.name,
+									"[I", false));
 				}
 				foundPoints = true;
 			}
@@ -99,7 +106,8 @@ public class ModelContainer extends HookContainer implements Task {
 
 	@Override
 	public boolean isValid(final String name, final ClassNode cn) {
-		if ((cn.access & Opcodes.ACC_ABSTRACT) != Opcodes.ACC_ABSTRACT || !cn.superName.equals("java/lang/Object") || cn.interfaces.size() > 0 || cn.fields.size() > 2) {
+		if ((cn.access & Opcodes.ACC_ABSTRACT) != Opcodes.ACC_ABSTRACT || !cn.superName.equals("java/lang/Object") ||
+				cn.interfaces.size() > 0 || cn.fields.size() > 2) {
 			return false;
 		}
 		int abstracts = 0;

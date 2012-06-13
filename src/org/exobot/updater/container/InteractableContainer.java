@@ -18,7 +18,7 @@ public class InteractableContainer extends HookContainer implements Task {
 
 	@Override
 	public Class<?>[] getDependencies() {
-		return new Class<?>[]{EntityNodeContainer.class};
+		return new Class<?>[]{ EntityNodeContainer.class };
 	}
 
 	@Override
@@ -44,7 +44,8 @@ public class InteractableContainer extends HookContainer implements Task {
 			FieldInsnNode fin;
 			while ((fin = ris.next(FieldInsnNode.class, Opcodes.GETFIELD)) != null) {
 				if (fin.owner.equals(cn.name) && fin.desc.equals("B")) {
-					addProcessor(new AddGetterProcessor(this, "getPlane", fin.desc, cn.name, fin.name, fin.desc, false));
+					addProcessor(
+							new AddGetterProcessor(this, "getPlane", fin.desc, cn.name, fin.name, fin.desc, false));
 					break outer;
 				}
 			}
