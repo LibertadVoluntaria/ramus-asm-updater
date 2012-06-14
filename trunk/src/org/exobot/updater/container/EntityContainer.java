@@ -12,7 +12,7 @@ import org.objectweb.asm.tree.*;
 /**
  * @author Ramus
  */
-public class EntityNodeContainer extends HookContainer implements Task {
+public class EntityContainer extends HookContainer implements Task {
 
 	@Override
 	public int getGetters() {
@@ -26,8 +26,8 @@ public class EntityNodeContainer extends HookContainer implements Task {
 
 	@Override
 	public void execute(final String name, final ClassNode cn) {
-		Updater.getInstance().getClasses().set("EntityNode", cn);
-		addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "EntityNode"));
+		Updater.getInstance().getClasses().set("Entity", cn);
+		addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "Entity"));
 		for (final MethodNode mn : cn.methods) {
 			if ((mn.access & Opcodes.ACC_STATIC) != 0) {
 				continue;
@@ -43,12 +43,8 @@ public class EntityNodeContainer extends HookContainer implements Task {
 			}
 			final FieldInsnNode prev = (FieldInsnNode) nodes[0];
 			final FieldInsnNode next = (FieldInsnNode) nodes[2];
-			addProcessor(
-					new AddGetterProcessor(this, "getPrevious", "L" + ACCESSOR_DESC + "EntityNode;", cn.name, prev.name,
-							prev.desc, false));
-			addProcessor(
-					new AddGetterProcessor(this, "getNext", "L" + ACCESSOR_DESC + "EntityNode;", cn.name, next.name,
-							next.desc, false));
+			addProcessor(new AddGetterProcessor(this, "getPrevious", "L" + ACCESSOR_DESC + "Entity;", cn.name, prev.name, prev.desc, false));
+			addProcessor(new AddGetterProcessor(this, "getNext", "L" + ACCESSOR_DESC + "Entity;", cn.name, next.name, next.desc, false));
 			break;
 		}
 	}

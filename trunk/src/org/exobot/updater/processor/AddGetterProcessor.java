@@ -29,13 +29,11 @@ public class AddGetterProcessor extends Processor {
 	}
 
 	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier) {
-		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, -1,
-				Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, -1, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 	}
 
 	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier, final int arrayIndex) {
-		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, arrayIndex,
-				Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
+		this(cc, name, returnDesc, parent, field, fieldDesc, isStatic, multiplier, arrayIndex, Opcodes.ACC_PUBLIC | Opcodes.ACC_FINAL);
 	}
 
 	public AddGetterProcessor(final HookContainer cc, final String name, final String returnDesc, final String parent, final String field, final String fieldDesc, final boolean isStatic, final int multiplier, final int arrayIndex, final int access) {

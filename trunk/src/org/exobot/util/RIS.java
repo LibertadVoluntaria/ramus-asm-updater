@@ -77,30 +77,38 @@ public class RIS {
 		return null;
 	}
 
-	public AbstractInsnNode next(final int opcode) {
+	public AbstractInsnNode next(final int... opcodes) {
 		for (++index; index < iList.size(); ++index) {
 			final AbstractInsnNode cur = current();
-			if (cur == null || cur.getOpcode() != opcode) {
+			if (cur == null) {
 				continue;
 			}
-			return cur;
+			for (final int op : opcodes) {
+				if (cur.getOpcode() == op) {
+					return cur;
+				}
+			}
 		}
 		return null;
 	}
 
-	public <T> T next(final Class<T> insn, final int opcode) {
+	public <T> T next(final Class<T> insn, final int... opcodes) {
 		for (++index; index < iList.size(); ++index) {
 			final AbstractInsnNode cur = current();
-			if (cur == null || !insn.isAssignableFrom(cur.getClass()) || cur.getOpcode() != opcode) {
+			if (cur == null || !insn.isAssignableFrom(cur.getClass())) {
 				continue;
 			}
-			return insn.cast(cur);
+			for (final int op : opcodes) {
+				if (cur.getOpcode() == op) {
+					return insn.cast(cur);
+				}
+			}
 		}
 		return null;
 	}
 
 	public Iterator<AbstractInsnNode[]> nextPattern(final String pattern) {
-		final List<AbstractInsnNode[]> matches = new LinkedList<AbstractInsnNode[]>();
+		final List<AbstractInsnNode[]> matches = new LinkedList<>();
 		final AbstractInsnNode[] array = getArray();
 		final String[] parts = pattern.split(" ");
 		int nodeIdx = 0;
@@ -146,24 +154,32 @@ public class RIS {
 		return null;
 	}
 
-	public <T> T previous(final Class<T> insn, final int opcode) {
+	public <T> T previous(final Class<T> insn, final int... opcodes) {
 		for (--index; index > 0; --index) {
 			final AbstractInsnNode cur = current();
-			if (cur == null || !insn.isAssignableFrom(cur.getClass()) || cur.getOpcode() != opcode) {
+			if (cur == null || !insn.isAssignableFrom(cur.getClass())) {
 				continue;
 			}
-			return insn.cast(cur);
+			for (final int op : opcodes) {
+				if (cur.getOpcode() == op) {
+					return insn.cast(cur);
+				}
+			}
 		}
 		return null;
 	}
 
-	public AbstractInsnNode previous(final int opcode) {
+	public AbstractInsnNode previous(final int... opcodes) {
 		for (--index; index > 0; --index) {
 			final AbstractInsnNode cur = current();
-			if (cur == null || cur.getOpcode() != opcode) {
+			if (cur == null) {
 				continue;
 			}
-			return cur;
+			for (final int op : opcodes) {
+				if (cur.getOpcode() == op) {
+					return cur;
+				}
+			}
 		}
 		return null;
 	}

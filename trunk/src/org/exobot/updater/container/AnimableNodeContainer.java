@@ -16,7 +16,7 @@ public class AnimableNodeContainer extends HookContainer implements Task {
 
 	@Override
 	public Class<?>[] getDependencies() {
-		return new Class<?>[]{ AnimableContainer.class };
+		return new Class<?>[]{AnimableContainer.class};
 	}
 
 	@Override
@@ -38,13 +38,9 @@ public class AnimableNodeContainer extends HookContainer implements Task {
 				continue;
 			}
 			if (fn.desc.equals("L" + cn.name + ";")) {
-				addProcessor(
-						new AddGetterProcessor(this, "getNext", "L" + ACCESSOR_DESC + "AnimableNode;", cn.name, fn.name,
-								fn.desc, false));
+				addProcessor(new AddGetterProcessor(this, "getNext", "L" + ACCESSOR_DESC + "AnimableNode;", cn.name, fn.name, fn.desc, false));
 			} else {
-				addProcessor(
-						new AddGetterProcessor(this, "getAnimable", "L" + ACCESSOR_DESC + "Animable;", cn.name, fn.name,
-								fn.desc, false));
+				addProcessor(new AddGetterProcessor(this, "getAnimable", "L" + ACCESSOR_DESC + "Animable;", cn.name, fn.name, fn.desc, false));
 			}
 		}
 	}

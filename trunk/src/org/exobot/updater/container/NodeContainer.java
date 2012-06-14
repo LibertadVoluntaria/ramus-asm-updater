@@ -39,9 +39,7 @@ public class NodeContainer extends HookContainer implements Task {
 			if (fin == null) {
 				continue;
 			}
-			addProcessor(
-					new AddGetterProcessor(this, "getNext", "L" + ACCESSOR_DESC + "Node;", cn.name, getNext = fin.name,
-							fin.desc, false));
+			addProcessor(new AddGetterProcessor(this, "getNext", "L" + ACCESSOR_DESC + "Node;", cn.name, getNext = fin.name, fin.desc, false));
 			break;
 		}
 		if (getNext == null) {
@@ -51,9 +49,7 @@ public class NodeContainer extends HookContainer implements Task {
 			if (fn.desc.equals("J")) {
 				addProcessor(new AddGetterProcessor(this, "getId", "J", cn.name, fn.name, "J", false));
 			} else if (!fn.name.equals(getNext) && fn.desc.equals("L" + cn.name + ";")) {
-				addProcessor(
-						new AddGetterProcessor(this, "getPrevious", "L" + ACCESSOR_DESC + "Node;", cn.name, fn.name,
-								fn.desc, false));
+				addProcessor(new AddGetterProcessor(this, "getPrevious", "L" + ACCESSOR_DESC + "Node;", cn.name, fn.name, fn.desc, false));
 			}
 		}
 	}
