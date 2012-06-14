@@ -32,7 +32,7 @@ public abstract class HookContainer implements Condition {
 	}
 
 	public HookContainer(final Task task) {
-		this(null, new Task[]{ task });
+		this(null, new Task[]{task});
 	}
 
 	public HookContainer(final Task[] tasks) {
@@ -40,7 +40,7 @@ public abstract class HookContainer implements Condition {
 	}
 
 	public HookContainer(final Condition policy, final Task task) {
-		this(policy, new Task[]{ task });
+		this(policy, new Task[]{task});
 	}
 
 	public HookContainer(final Condition policy, final Task[] tasks) {
@@ -131,7 +131,7 @@ public abstract class HookContainer implements Condition {
 	}
 
 	public final void setTask(final Task task) {
-		setTasks(new Task[]{ task });
+		setTasks(new Task[]{task});
 	}
 
 	public final void setTasks(final Task[] tasks) {

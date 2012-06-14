@@ -68,9 +68,7 @@ public class ModelContainer extends HookContainer implements Task {
 					}
 					if (fields != null) {
 						for (int i = 1; i < 4; i++) {
-							addProcessor(
-									new AddGetterProcessor(this, "getIndices" + i, "[S", node.name, fields[i - 1], "[S",
-											false));
+							addProcessor(new AddGetterProcessor(this, "getIndices" + i, "[S", node.name, fields[i - 1], "[S", false));
 						}
 						foundIndices = true;
 					}
@@ -95,9 +93,7 @@ public class ModelContainer extends HookContainer implements Task {
 					if (fin == null) {
 						continue outer;
 					}
-					addProcessor(
-							new AddGetterProcessor(this, "get" + (char) (88 + i) + "Points", "[I", node.name, fin.name,
-									"[I", false));
+					addProcessor(new AddGetterProcessor(this, "get" + (char) (88 + i) + "Points", "[I", node.name, fin.name, "[I", false));
 				}
 				foundPoints = true;
 			}

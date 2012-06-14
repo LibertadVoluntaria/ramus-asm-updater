@@ -11,7 +11,7 @@ import org.objectweb.asm.tree.FieldNode;
 /**
  * @author Ramus
  */
-public class TileDataContainer extends HookContainer implements Task {
+public class LandscapeContainer extends HookContainer implements Task {
 
 	@Override
 	public int getGetters() {
@@ -25,14 +25,14 @@ public class TileDataContainer extends HookContainer implements Task {
 
 	@Override
 	public void execute(final String name, final ClassNode cn) {
-		Updater.getInstance().getClasses().set("TileData", cn);
-		addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "TileData"));
+		Updater.getInstance().getClasses().set("Landscape", cn);
+		addProcessor(new AddInterfaceProcessor(this, cn.name, ACCESSOR_DESC + "Landscape"));
 		for (final FieldNode fn : cn.fields) {
 			if ((fn.access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC) {
 				continue;
 			}
 			if (fn.desc.equals("[[I")) {
-				addProcessor(new AddGetterProcessor(this, "getHeights", fn.desc, cn.name, fn.name, fn.desc, false));
+				addProcessor(new AddGetterProcessor(this, "getTileHeights", fn.desc, cn.name, fn.name, fn.desc, false));
 			}
 		}
 	}

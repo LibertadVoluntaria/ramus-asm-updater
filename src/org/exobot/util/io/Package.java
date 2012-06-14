@@ -28,8 +28,7 @@ public class Package {
 			for (final String fileName : files) {
 				if (fileName.endsWith(".class") || fileName.endsWith(".java")) {
 					try {
-						classes.add(
-								Class.forName(packageName + "." + fileName.replace(".java", "").replace(".class", "")));
+						classes.add(Class.forName(packageName + "." + fileName.replace(".java", "").replace(".class", "")));
 					} catch (final ClassNotFoundException ignored) {
 					}
 				}

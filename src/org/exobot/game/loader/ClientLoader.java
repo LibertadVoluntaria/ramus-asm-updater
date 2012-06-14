@@ -21,7 +21,7 @@ import org.objectweb.asm.tree.ClassNode;
  */
 public class ClientLoader {
 
-	public static boolean LOAD_LOCAL = false;
+	public static boolean LOAD_LOCAL = true;
 
 	private final Map<String, ClassNode> classes = new LinkedHashMap<>();
 	private final GameEnvironment game;
@@ -34,8 +34,7 @@ public class ClientLoader {
 	private Map<String, byte[]> decryptGamepack(final File gamepack) {
 		System.out.println("Decrypting gamepack.");
 		try {
-			final Map<String, byte[]> innerpack = Decrypter.decryptPack(gamepack, game.getParameter("-1"),
-					game.getParameter("0"));
+			final Map<String, byte[]> innerpack = Decrypter.decryptPack(gamepack, game.getParameter("-1"), game.getParameter("0"));
 			System.out.println("Successfully decrypted gamepack.");
 			return innerpack;
 		} catch (final Exception e) {
