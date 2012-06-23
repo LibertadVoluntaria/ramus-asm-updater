@@ -132,7 +132,7 @@ public class GraphicsToolkitContainer extends HookContainer implements Task {
 	}
 
 	private void addOffsets(final HookContainer hc, final RIS ris, final FieldInsnNode matrix, final int brackets) {
-		final Iterator<AbstractInsnNode[]> adds = ris.nextPattern(brackets == 2 ? "fadd fadd fadd" : brackets > 0 ? "fmul fadd fadd fload" : "faload fadd fload");
+		final Iterator<AbstractInsnNode[]> adds = ris.nextPattern(brackets == 2 ? "fadd fadd fadd" : brackets > 0 ? "fmul fadd fadd (fload|aload)" : "faload fadd (fload|aload)");
 		while (adds.hasNext()) {
 			adds.next();
 			AbstractInsnNode arrIdx = null;
@@ -150,7 +150,7 @@ public class GraphicsToolkitContainer extends HookContainer implements Task {
 				}
 			}
 			ris.setPosition(pos);
-			if (index >= 3) {
+			if (index > 3) {
 				continue;
 			}
 			final int value;
