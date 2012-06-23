@@ -115,7 +115,8 @@ public class GameScene implements GameEnvironment {
 
 	private Map<String, String> parseParameters() throws IOException {
 		final Map<String, String> parameters = new LinkedHashMap<>();
-		final Matcher matcher = Patterns.PARAMETER.matcher(Internet.downloadContent(directGame));
+		final String game = Internet.downloadContent(directGame);
+		final Matcher matcher = Patterns.PARAMETER.matcher(game);
 		while (matcher.find()) {
 			final String key = matcher.group(1);
 			final String value = matcher.group(2);
