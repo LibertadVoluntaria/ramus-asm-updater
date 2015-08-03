@@ -1,0 +1,1 @@
+A hooks updater built with Java using the ASM library.
